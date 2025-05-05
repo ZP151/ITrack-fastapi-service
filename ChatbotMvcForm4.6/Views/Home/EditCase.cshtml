@@ -1,0 +1,899 @@
+﻿@{
+    ViewBag.Title = "Chatbot Interaction";
+}
+
+<h2>Issue Description</h2>
+<textarea id="issueDesc" class="form-control" rows="5"></textarea>
+<br>
+<button id="submitBtn" class="btn btn-primary">Submit</button>
+
+
+<!-- Chatbot Window -->
+<div id="chatbotWindow">
+    <!-- Loader -->
+    <div id="loader" class="loader-container">
+        <div class="loader"></div>
+        <div class="loader-text">Processing your request...</div>
+    </div>
+
+    <div id="chatbotHeader">
+        <h3>Chatbot Helper</h3>
+        <button id="closeChatbot">✖</button>
+    </div>
+
+    <div id="chatbotTitle">Chatbot history</div>
+    <div id="chatContainer">
+        <div id="chatMessages">
+            <div id="userMessages" class="messages-container"></div>
+            <div id="assistantMessages" class="messages-container"></div>
+        </div>
+        <div id="messageControls">
+            <button id="prevMessage">⬆</button>
+            <button id="nextMessage">⬇</button>
+        </div>
+    </div>
+
+    <div id="inputTitle">
+        <span>Edit Details Below</span>
+        <div class="section-controls">
+            <button id="expandAllBtn">Expand All</button>
+            <button id="collapseAllBtn">Collapse All</button>
+        </div>
+    </div>
+    <div id="chatbot-input-area">
+        <table id="formTable">
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Value</th>
+                    <th>Manipulations</th>
+                </tr>
+            </thead>
+            <tbody id="formContainer">
+                <!-- Dynamic form content will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+    <div id="chatbot-controls">
+        <button id="sendBtn" class="btn-action">Send</button>
+        <button id="confirmBtn" class="btn-action">Confirm</button>
+    </div>
+</div>
+
+<style>
+    /* Base styles */
+    #chatbotWindow {
+        display: none;
+        position: fixed;
+        width: 60%;
+        height: 90%;
+        background: #fff;
+        border: 1px solid #ccc;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* Header */
+    #chatbotHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f0f0f0;
+        padding: 8px;
+        cursor: move;
+    }
+
+    #closeChatbot {
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 16px;
+    }
+        /* 加载动画样式 */
+    .loader-container {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .loader {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        margin-bottom: 15px;
+    }
+
+    .loader-text {
+        font-size: 18px;
+        color: #333;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    /* Chat section */
+    #chatbotTitle {
+        background: #f0f0f0;
+        padding: 5px;
+        font-weight: bold;
+    }
+
+    #chatContainer {
+        height: 200px;
+        border-bottom: 1px solid #ccc;
+        overflow: hidden;
+        position: relative;
+    }
+
+    #chatMessages {
+        height: 190px;
+        overflow-y: auto;
+        background: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .messages-container {
+        padding: 5px;
+    }
+
+    .user-message, .ai-message {
+        margin: 5px 0;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .user-message {
+        background-color: #e6f0ff;
+    }
+
+    .ai-message {
+        background-color: #e6ffe6;
+    }
+
+    #messageControls {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+    }
+
+        #messageControls button {
+            margin: 0 2px;
+            padding: 2px 5px;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+    /* Form section */
+    #inputTitle {
+        background: #f0f0f0;
+        padding: 5px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-controls button {
+        margin-left: 5px;
+        padding: 2px 5px;
+        background: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        font-size: 12px;
+    }
+
+    #chatbot-input-area {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 5px;
+    }
+
+    #formTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        #formTable thead {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 1;
+        }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 5px;
+        text-align: left;
+    }
+
+    th {
+        background: #f2f2f2;
+    }
+    /* 相应减少第一列和第三列 */
+    table th:first-child,
+    table td:first-child {
+        width: 35%;
+    }
+
+    table th:last-child,
+    table td:last-child {
+        width: 15%;
+    }
+    /* 增加第二列(Value)的宽度比例 */
+    table th:nth-child(2),
+    table td:nth-child(2) {
+        width: 50%; /* 增加到65%或更高 */
+    }
+
+    /* 第一列的输入框样式 */
+    table td:nth-child(1) input[type="text"] {
+        width: 95%;
+        box-sizing: border-box;
+        padding: 3px;
+    }
+
+    /* 第二列的输入框样式 */
+    table td:nth-child(2) input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 3px;
+    }
+
+
+
+    /* Controls */
+    #chatbot-controls {
+        padding: 8px;
+        text-align: center;
+        background: #f0f0f0;
+    }
+
+    .btn-action {
+        padding: 5px 10px;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+
+    /* Utility */
+    .hidden {
+        display: none;
+    }
+
+    .section-header {
+        background: #f5f5f5;
+        cursor: pointer;
+    }
+
+    .visibility-toggle {
+        margin-left: 5px;
+        cursor: pointer;
+    }
+</style>
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(document).ready(function() {
+            let isFinal = false;
+            let issueDesc = "";
+            let formData = {};
+            let sectionStates = {};
+
+
+            // Make chatbot window draggable
+            $("#chatbotWindow").draggable({
+                handle: "#chatbotHeader",
+                containment: "document",
+                cursor: "move",
+                start: function (event, ui) {
+                    // 保存初始位置
+                    $(this).data('startPos', $(this).position());
+                },
+                stop: function (event, ui) {
+                    // 防止位置异常
+                    if (ui.position.left < 0 || ui.position.top < 0) {
+                        $(this).css($(this).data('startPos'));
+                    }
+                }
+            });
+            // 使用 jQuery UI position 功能居中
+            $("#chatbotWindow").position({
+                my: "center",
+                at: "center",
+                of: window
+            });
+            // Submit button
+            $("#submitBtn").click(function(e) {
+                e.preventDefault();
+                issueDesc = $("#issueDesc").val();
+                if (issueDesc.trim() === "") {
+                    alert("Please enter an issue description.");
+                    return;
+                }
+                $("#chatbotWindow").css("display", "flex").show();
+
+                $(this).prop("disabled", true);
+
+                $("#loader").css("display", "flex").show();
+
+                // Initialize formData
+                formData = {
+                    category: "",
+                    task: "",
+                    summary: "",
+                    description: "",
+                    root_causes: [],
+                    conclusion: "",
+                    impact_analysis: { 
+                        affected_module: "", 
+                        severity: "Severity 1", 
+                        priority: "Medium", 
+                        defect_phase: "Unknown",
+                        dynamic_fields: [] 
+                    },
+                    resolution: { fix_applied: "", dynamic_fields: [] },
+                    preventive_measures: { general_measure: "", dynamic_fields: [] },
+                    supplementary_info: { dynamic_fields: [] },
+                    additional_questions: { dynamic_fields: [] }
+                };
+
+                // Initialize section states
+                sectionStates = {
+                    category: { expanded: true, visible: true },
+                    task: { expanded: true, visible: true },
+                    summary: { expanded: true, visible: true },
+                    description: { expanded: true, visible: true },
+                    root_causes: { expanded: true, visible: true },
+                    conclusion: { expanded: true, visible: true },
+                    impact_analysis: { expanded: true, visible: true },
+                    resolution: { expanded: true, visible: true },
+                    preventive_measures: { expanded: true, visible: true },
+                    supplementary_info: { expanded: true, visible: true },
+                    additional_questions: { expanded: true, visible: true }
+                };
+
+                loadForm();
+                sendMessage(isFinal);
+            });
+
+            // Send button
+            $("#sendBtn").click(function() {
+                sendMessage(isFinal);
+            });
+
+            // Confirm button
+            $("#confirmBtn").click(function() {
+                // 获取当前的conclusion值
+                let conclusion = formData.conclusion || "";
+                
+                // 更新formData，设置description为conclusion
+                formData.description = conclusion;
+                
+                // 更新文本区域展示
+                $("#issueDesc").val(conclusion);
+
+                $.ajax({
+                    url: '@Url.Action("ChatbotOptimize", "Home")',
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify({ formData: formData, isFinal: true }),
+                    success: function (response) {
+
+                        if (response.status === "success") {
+                            // 处理成功响应
+                            $("#chatbotWindow").hide();
+                            $("#chatMessages").html("");
+                            alert("Form submitted successfully!");
+
+                            $("#submitBtn").prop("disabled", false);
+
+                        } else if (response.error) {
+                            // 处理错误响应
+
+                            console.error("Error from API:", response.error);
+                            alert("Error: " + response.error);
+
+                            // 如果有响应字符串，可以显示或处理
+                            if (response.response) {
+                                console.log("Response data:", response.response);
+                                appendMessage("System", "Error occurred but received response: " + response.response, "ai-message");
+                            }
+                        } else {
+                            // 处理其他响应
+                            alert("Operation completed with unknown status");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error:", error);
+                        alert("Chatbot service failed. Status: " + xhr.status);
+                    }
+                });
+            });
+
+            // Close button
+            $("#closeChatbot").click(function() {
+                $("#chatbotWindow").hide();
+                $("#chatMessages").html("");
+            });
+
+            // Expand/Collapse All buttons
+            $("#expandAllBtn").click(function() {
+                Object.keys(sectionStates).forEach(key => {
+                    sectionStates[key].expanded = true;
+                });
+                loadForm();
+            });
+
+            $("#collapseAllBtn").click(function() {
+                Object.keys(sectionStates).forEach(key => {
+                    sectionStates[key].expanded = false;
+                });
+                loadForm();
+            });
+
+            // Message navigation
+            let currentMessageIndex = 0;
+
+            $("#prevMessage").click(function() {
+                if (currentMessageIndex > 0) {
+                    currentMessageIndex--;
+                    scrollToMessage(currentMessageIndex);
+                }
+            });
+
+            $("#nextMessage").click(function() {
+                let totalMessages = $("#chatMessages .chat-message").length;
+                if (currentMessageIndex < totalMessages - 1) {
+                    currentMessageIndex++;
+                    scrollToMessage(currentMessageIndex);
+                }
+            });
+
+            function scrollToMessage(index) {
+                let targetMessage = $("#message-" + index);
+                if (targetMessage.length) {
+                    $("#chatMessages").animate({
+                        scrollTop: targetMessage.offset().top - $("#chatMessages").offset().top + $("#chatMessages").scrollTop()
+                    }, 300);
+                }
+            }
+
+            function assignMessageIds() {
+                $("#chatMessages .chat-message").each(function(index) {
+                    $(this).attr("id", "message-" + index);
+                });
+            }
+
+            // Send message to server
+            function sendMessage(finalStatus) {
+                // 显示加载动画
+                $("#loader").css("display", "flex").show();
+
+                let payload;
+
+                if (finalStatus) {
+                    payload = JSON.stringify({ formData: {}, isFinal: true });
+                } else {
+                    let requestData = { formData: {}, isFinal: false };
+
+                    if ($("#submitBtn").is(":disabled")) {
+                        requestData.formData = {
+                            category: "",
+                            task: "",
+                            summary: "",
+                            description: issueDesc,
+                            root_causes: [],
+                            conclusion: "",
+                            impact_analysis: {
+                                affected_module: "",
+                                severity: "Severity 1",
+                                priority: "Medium",
+                                defect_phase: "Unknown",
+                                dynamic_fields: []
+                            },
+                            resolution: {
+                                fix_applied: "",
+                                dynamic_fields: []
+                            },
+                            preventive_measures: {
+                                general_measure: "",
+                                dynamic_fields: []
+                            },
+                            supplementary_info: {
+                                dynamic_fields: []
+                            },
+                            additional_questions: {
+                                dynamic_fields: []
+                            }
+                        };
+                    } else {
+                        requestData.formData = formData;
+                    }
+
+                    payload = JSON.stringify(requestData);
+                }
+
+                appendMessage("User", payload, "user-message");
+
+                $.ajax({
+                    url: '@Url.Action("ChatbotOptimize", "Home")',
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: payload,
+                    success: function (response) {
+                        
+
+                        Object.keys(formData).forEach(key => {
+                            if (typeof formData[key] === "object" && formData[key] !== null) {
+                                Object.assign(formData[key], mapResponseToFormData(response)[key]);
+                            } else {
+                                formData[key] = mapResponseToFormData(response)[key];
+                            }
+                        });
+
+                        loadForm();
+
+                        let formattedJson = JSON.stringify(response, null, 2);
+                        appendMessage("Assistant", formattedJson, "ai-message");
+                    },
+                    error: function (xhr, status, error) {
+                        $("#loader").hide();
+
+                        console.error("Error:", error);
+                        alert("Chatbot service failed. Status: " + xhr.status);
+                    }
+                });
+            }
+
+            function mapResponseToFormData(response) {
+                return {
+                    category: response.Category || "",
+                    task: response.Task || "",
+                    summary: response.Summary || "",
+                    description: response.Description || "",
+                    root_causes: response.RootCauses || [],
+                    conclusion: response.Conclusion || "",
+                    impact_analysis: {
+                        affected_module: response.ImpactAnalysis?.AffectedModule || "",
+                        severity: response.ImpactAnalysis?.Severity || "",
+                        priority: response.ImpactAnalysis?.Priority || "",
+                        defect_phase: response.ImpactAnalysis?.DefectPhase || "",
+                        dynamic_fields: response.ImpactAnalysis?.DynamicFields?.map(mapDynamicField) || []
+                    },
+                    resolution: {
+                        fix_applied: response.Resolution?.FixApplied || "",
+                        dynamic_fields: response.Resolution?.DynamicFields?.map(mapDynamicField) || []
+                    },
+                    preventive_measures: {
+                        general_measure: response.PreventiveMeasures?.GeneralMeasure || "",
+                        dynamic_fields: response.PreventiveMeasures?.DynamicFields?.map(mapDynamicField) || []
+                    },
+                    supplementary_info: {
+                        dynamic_fields: response.SupplementaryInfo?.DynamicFields?.map(mapDynamicField) || []
+                    },
+                    additional_questions: {
+                        dynamic_fields: response.AdditionalQuestions?.DynamicFields?.map(mapDynamicField) || []
+                    }
+                };
+            }
+
+            function mapDynamicField(field) {
+                return {
+                    key: field.Key || "",
+                    value: field.Value || "",
+                    type: field.Type || "string",
+                    is_confirmed: field.IsConfirmed || false
+                };
+            }
+
+            // Append message to chat
+            function appendMessage(sender, message, messageType) {
+                let chatContainer = sender === "User" ? $("#assistantMessages") : $("#userMessages");
+
+                let messageElement = $("<div>").addClass("chat-message").addClass(messageType);
+                let senderLabel = $("<strong>").text(sender + ":");
+                messageElement.append(senderLabel);
+
+                let formattedMessage;
+                try {
+                    let jsonObject = typeof message === "string" ? JSON.parse(message) : message;
+                    formattedMessage = $("<pre>").text(JSON.stringify(jsonObject, null, 2));
+                } catch (e) {
+                    formattedMessage = $("<pre>").text(message);
+                }
+
+                messageElement.append(formattedMessage);
+                chatContainer.append(messageElement);
+
+                assignMessageIds();
+
+                if (chatContainer.length) {
+                    setTimeout(() => {
+                        chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
+                    }, 50);
+                }
+            }
+
+            // Form utilities
+            function createInputField(value, onChange, disabled = false) {
+                let input = document.createElement("input");
+                input.type = "text";
+                input.value = value;
+                input.disabled = disabled;
+                input.oninput = (e) => onChange(e.target.value);
+                return input;
+            }
+
+            function createButton(text, className, onClick) {
+                let button = document.createElement("button");
+                button.textContent = text;
+                button.className = className + " btn-action";
+                button.onclick = onClick;
+                return button;
+            }
+
+            function toggleSectionVisibility(sectionKey) {
+                sectionStates[sectionKey].visible = !sectionStates[sectionKey].visible;
+                loadForm();
+            }
+
+            function toggleSectionExpansion(sectionKey) {
+                sectionStates[sectionKey].expanded = !sectionStates[sectionKey].expanded;
+                loadForm();
+            }
+
+            function createSectionHeaderRow(title, sectionKey) {
+                let row = document.createElement("tr");
+                row.className = "section-header";
+
+                let titleCell = document.createElement("td");
+                titleCell.colSpan = 2;
+
+                let expandIcon = document.createElement("span");
+                expandIcon.textContent = sectionStates[sectionKey].expanded ? "▼ " : "► ";
+                expandIcon.style.cursor = "pointer";
+                expandIcon.onclick = () => toggleSectionExpansion(sectionKey);
+
+                let titleText = document.createTextNode(title);
+
+                titleCell.appendChild(expandIcon);
+                titleCell.appendChild(titleText);
+
+                let actionCell = document.createElement("td");
+
+                // Add button for specific sections
+                if (sectionKey === "root_causes") {
+                    let addButton = createButton("Add", "btn-new", () => {
+                        formData.root_causes.push("");
+                        loadForm();
+                    });
+                    actionCell.appendChild(addButton);
+                } else if (["impact_analysis", "resolution", "preventive_measures", "supplementary_info", "additional_questions"].includes(sectionKey)) {
+                    let addButton = createButton("New", "btn-new", () => {
+                        if (!formData[sectionKey].dynamic_fields) {
+                            formData[sectionKey].dynamic_fields = [];
+                        }
+                        formData[sectionKey].dynamic_fields.push({ key: "New Field", value: "", type: "string", is_confirmed: true });
+                        loadForm();
+                    });
+                    actionCell.appendChild(addButton);
+                }
+
+                row.appendChild(titleCell);
+                row.appendChild(actionCell);
+
+                row.onclick = (e) => {
+                    if (e.target !== expandIcon && e.target.tagName !== 'BUTTON') {
+                        toggleSectionExpansion(sectionKey);
+                    }
+                };
+
+                return row;
+            }
+
+            function createFieldRow(label, value, onChange) {
+                let row = document.createElement("tr");
+
+                let labelCell = document.createElement("td");
+                labelCell.textContent = label;
+
+                let valueCell = document.createElement("td");
+                let input = createInputField(value, onChange);
+                valueCell.appendChild(input);
+
+                let actionCell = document.createElement("td");
+
+                row.appendChild(labelCell);
+                row.appendChild(valueCell);
+                row.appendChild(actionCell);
+
+                return row;
+            }
+
+            function createDynamicFieldRow(field, index, groupKey) {
+                let row = document.createElement("tr");
+
+                let keyCell = document.createElement("td");
+
+                // Add visibility toggle (confirm/unconfirm) checkbox
+                let visibilityToggle = document.createElement("input");
+                visibilityToggle.type = "checkbox";
+                visibilityToggle.checked = field.is_confirmed;
+                visibilityToggle.style.marginRight = "5px";
+                visibilityToggle.onchange = () => {
+                    formData[groupKey].dynamic_fields[index].is_confirmed = visibilityToggle.checked;
+                    loadForm();
+                };
+
+                keyCell.appendChild(visibilityToggle);
+
+                let keyInput = createInputField(field.key, (newKey) => {
+                    formData[groupKey].dynamic_fields[index].key = newKey;
+                }, !field.is_confirmed);
+                keyCell.appendChild(keyInput);
+
+                let valueCell = document.createElement("td");
+                let valueInput = createInputField(field.value, (newValue) => {
+                    formData[groupKey].dynamic_fields[index].value = newValue;
+                }, !field.is_confirmed);
+                valueCell.appendChild(valueInput);
+
+                let actionCell = document.createElement("td");
+                let deleteButton = createButton("Delete", "btn-delete", () => {
+                    formData[groupKey].dynamic_fields.splice(index, 1);
+                    loadForm();
+                });
+                actionCell.appendChild(deleteButton);
+
+                row.appendChild(keyCell);
+                row.appendChild(valueCell);
+                row.appendChild(actionCell);
+
+                return row;
+            }
+
+            function createDynamicSection(groupKey, title) {
+                if (!sectionStates[groupKey].visible) {
+                    return [createSectionHeaderRow(title, groupKey)];
+                }
+
+                let rows = [createSectionHeaderRow(title, groupKey)];
+
+                if (!sectionStates[groupKey].expanded) {
+                    return rows;
+                }
+
+                let groupData = formData[groupKey];
+                if (!groupData) return rows;
+
+                // Basic fields
+                Object.keys(groupData).forEach(key => {
+                    if (key !== "dynamic_fields") {
+                        rows.push(createFieldRow(
+                            key.replace(/_/g, " "),
+                            groupData[key],
+                            (newValue) => { formData[groupKey][key] = newValue; }
+                        ));
+                    }
+                });
+
+                // Dynamic fields
+                if (groupData.dynamic_fields) {
+                    rows.push(...groupData.dynamic_fields.map((field, index) =>
+                        createDynamicFieldRow(field, index, groupKey)
+                    ));
+                }
+
+                return rows;
+            }
+
+            function createSimpleSection(key, title) {
+                if (!sectionStates[key].visible) {
+                    return [createSectionHeaderRow(title, key)];
+                }
+
+                let rows = [createSectionHeaderRow(title, key)];
+
+                if (!sectionStates[key].expanded) {
+                    return rows;
+                }
+
+                rows.push(createFieldRow(title, formData[key], (value) => {
+                    formData[key] = value;
+                }));
+
+                return rows;
+            }
+
+            function createRootCausesSection() {
+                if (!sectionStates.root_causes.visible) {
+                    return [createSectionHeaderRow("Root Causes", "root_causes")];
+                }
+
+                let rows = [createSectionHeaderRow("Root Causes", "root_causes")];
+
+                if (!sectionStates.root_causes.expanded) {
+                    return rows;
+                }
+
+                if (!Array.isArray(formData.root_causes)) {
+                    formData.root_causes = [];
+                }
+                if (formData.root_causes.length === 0) {
+                    formData.root_causes.push("");
+                }
+
+                // Root causes items
+                formData.root_causes.forEach((cause, index) => {
+                    let row = document.createElement("tr");
+
+                    let labelCell = document.createElement("td");
+                    labelCell.textContent = `Root Cause ${index + 1}`;
+
+                    let valueCell = document.createElement("td");
+                    let input = createInputField(cause, (newValue) => {
+                        formData.root_causes[index] = newValue;
+                    });
+                    valueCell.appendChild(input);
+
+                    let actionCell = document.createElement("td");
+                    if (index > 0) {
+                        let deleteButton = createButton("Delete", "btn-delete", () => {
+                            formData.root_causes.splice(index, 1);
+                            loadForm();
+                        });
+                        actionCell.appendChild(deleteButton);
+                    }
+
+                    row.appendChild(labelCell);
+                    row.appendChild(valueCell);
+                    row.appendChild(actionCell);
+
+                    rows.push(row);
+                });
+
+                return rows;
+            }
+
+            function loadForm() {
+                // 隐藏加载动画
+                $("#loader").hide();
+
+                let formContainer = document.getElementById("formContainer");
+                formContainer.innerHTML = "";
+
+                // Append sections in order
+                formContainer.append(...createSimpleSection("category", "Category"));
+                formContainer.append(...createSimpleSection("task", "Task"));
+                formContainer.append(...createSimpleSection("summary", "Summary"));
+                formContainer.append(...createSimpleSection("description", "Description"));
+                formContainer.append(...createRootCausesSection());
+                formContainer.append(...createSimpleSection("conclusion", "Conclusion"));
+                formContainer.append(...createDynamicSection("impact_analysis", "Impact Analysis"));
+                formContainer.append(...createDynamicSection("resolution", "Resolution"));
+                formContainer.append(...createDynamicSection("preventive_measures", "Preventive Measures"));
+                formContainer.append(...createDynamicSection("supplementary_info", "Supplementary Info"));
+                formContainer.append(...createDynamicSection("additional_questions", "Additional Questions"));
+            }
+        });
+    </script>
+}
