@@ -22,9 +22,30 @@ app = FastAPI()
 
 # Load prompt from external file
 def load_prompt():
-    with open("prompt_template1.md", "r", encoding="utf-8") as file:
-        return file.read()
+    """
+    加载提示词模板。
+    """
+    try:
+        with open("prompt_template1.md", "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        print(f"Error loading prompt template: {e}")
+        return ""
+
+# 加载最终RCA报告提示词模板        
+def load_final_rca_template():
+    """
+    加载最终RCA报告提示词模板。
+    """
+    try:
+        with open("final_rca_template.md", "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        print(f"Error loading final RCA template: {e}")
+        return ""
+        
 PROMPT_TEMPLATE = load_prompt()
+FINAL_RCA_TEMPLATE = load_final_rca_template()
 
 # 初始化 session_store 用于存储 RCA 轮询会话数据
 session_store = {}
@@ -189,16 +210,96 @@ def refine_rca(rca_request: RCARequest) -> Union[RCAResponse, dict]:
 
     start_time = time.time()  # 记录开始时间
     
-    # **如果 is_final=True，清空 session 并返回成功**
+    # **如果 is_final=True，生成最终RCA报告**
     if rca_request.is_final:
-        if session_id in session_store:
-            del session_store[session_id]  # **清空 session**
-        logging.info(f"Session {session_id} cleared. Returning success.")
-
-        return {"status": "success"}  # **只返回成功状态**
+        logging.info(f"Final request received for session_id: {session_id}. Generating RCA report.")
+        
+        # 确保请求数据完整
+        rca_request = ensure_complete_rca_request(rca_request)
+        
+        # 构造请求数据
+        rca_data = rca_request.model_dump()
+        
+        # 不再严格过滤dynamic_fields，保留更多信息供AI分析
+        # 只是标记哪些是已确认的，让AI自行决定如何使用这些数据
+        for section in ["impact_analysis", "resolution", "preventive_measures", "supplementary_info"]:
+            if section in rca_data and "dynamic_fields" in rca_data[section]:
+                # 添加一个标记，表示该字段是否已被确认
+                for field in rca_data[section]["dynamic_fields"]:
+                    if not field.get("is_confirmed", False):
+                        field["ai_note"] = "This field is not confirmed by user but may contain valuable information"
+        
+        # 调用OpenAI生成最终报告
+        try:
+            logging.info("Calling OpenAI API to generate final RCA report")
+            openai.api_key = OPENAI_API_KEY
+            
+            # 构造消息
+            messages = [
+                {"role": "system", "content": FINAL_RCA_TEMPLATE},
+                {"role": "user", "content": json.dumps(rca_data, indent=2)}
+            ]
+            
+            # 调用API - 增加温度和最大token以允许更创造性和详细的内容生成
+            response = openai.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                temperature=0.5,  # 提高温度以增加创造性
+                max_tokens=3000   # 增加最大token数以允许更详细的报告
+            )
+            
+            # 获取报告内容
+            rca_report = response.choices[0].message.content.strip()
+            
+            # 明确替换任何中文字符，特别是"无"
+            rca_report = rca_report.replace("无", "N/A")
+            
+            # 使用正则表达式替换任何其他中文字符
+            rca_report = re.sub(r'[\u4e00-\u9fff]', 'N/A', rca_report)
+            
+            # 处理空结论情况 - 如果结论中只有"None"或"N/A"，添加生成新结论的提示
+            if "## 7. Conclusion\nNone" in rca_report or "## 7. Conclusion\nN/A" in rca_report:
+                # 提取报告内容作为上下文
+                report_context = rca_report
+                
+                # 创建请求以生成完整结论
+                conclusion_messages = [
+                    {"role": "system", "content": "You are an AI that creates detailed conclusions for Root Cause Analysis reports. Given the RCA report content, generate a comprehensive conclusion that summarizes the findings, impact, root causes, resolutions, and preventive measures. The conclusion should be professional and actionable."},
+                    {"role": "user", "content": f"Based on this Root Cause Analysis report, generate a comprehensive conclusion paragraph:\n\n{report_context}"}
+                ]
+                
+                # 调用API生成结论
+                conclusion_response = openai.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=conclusion_messages,
+                    temperature=0.4,
+                    max_tokens=500
+                )
+                
+                # 获取结论内容并替换原结论
+                new_conclusion = conclusion_response.choices[0].message.content.strip()
+                rca_report = rca_report.replace("## 7. Conclusion\nNone", f"## 7. Conclusion\n{new_conclusion}")
+                rca_report = rca_report.replace("## 7. Conclusion\nN/A", f"## 7. Conclusion\n{new_conclusion}")
+            
+            # 清空session
+            if session_id in session_store:
+                del session_store[session_id]
+                
+            logging.info(f"RCA report generated successfully for session {session_id}")
+            
+            # 返回包含完整报告的响应
+            return {
+                "status": "success",
+                "rca_report": rca_report,
+                "data": rca_data  # 同时返回原始数据供前端使用
+            }
+            
+        except Exception as e:
+            logging.error(f"Error generating RCA report: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error generating RCA report: {str(e)}")
     
+    # 非最终请求的处理逻辑保持不变
     rca_request = ensure_complete_rca_request(rca_request)
-
     
     # **初始化 session_store**
     if session_id not in session_store:
