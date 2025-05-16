@@ -1,0 +1,32 @@
+@model List<ChatbotMvcForm4._6.Models.Case>
+@{
+    ViewBag.Title = "Recent Tickets";
+}
+<h2>Recent Tickets</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Project</th>
+            <th>Category</th>
+            <th>Summary</th>
+            <th>Created Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.ID</td>
+            <td>@item.Project</td>
+            <td>@item.Category</td>
+            <td>@item.Summary</td>
+            <td>@item.CreatedDate?.ToString("yyyy-MM-dd HH:mm")</td>
+            <td>
+                <a href="@Url.Action("EditCase", "Home", new { id = item.ID })" class="btn btn-primary btn-sm">Edit</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table> 

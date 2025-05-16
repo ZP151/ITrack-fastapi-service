@@ -2,6 +2,12 @@
     ViewBag.Title = "Home Page";
 }
 
+<h2>Welcome to the Helpdesk System</h2>
+<div style="margin: 20px 0;">
+    <a href="@Url.Action("NewTicket", "Home")" class="btn btn-primary" style="margin-right: 10px;">New Ticket</a>
+    <a href="@Url.Action("ViewCase", "Home")" class="btn btn-success">View Cases</a>
+</div>
+
 <main>
     <section class="row" aria-labelledby="aspnetTitle">
         <h1 id="title">ASP.NET</h1>

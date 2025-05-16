@@ -3,15 +3,67 @@
   "WorkspaceRootPath": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|c:\\users\\dell\\source\\repos\\itrack\\chatbotmvcform4.6\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|c:\\users\\dell\\source\\repos\\itrack\\chatbotmvcform4.6\\views\\shared\\error.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\shared\\error.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|c:\\users\\dell\\source\\repos\\itrack\\chatbotmvcform4.6\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|c:\\users\\dell\\source\\repos\\itrack\\chatbotmvcform4.6\\models\\tebsitrackdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:models\\tebsitrackdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|c:\\users\\dell\\source\\repos\\itrack\\chatbotmvcform4.6\\views\\home\\about.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\home\\about.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\views\\home\\contact.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\home\\contact.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\views\\home\\newticket.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\home\\newticket.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\views\\home\\viewcase.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\home\\viewcase.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\views\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\views\\_viewstart.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\_viewstart.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\views\\home\\editcase.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\home\\editcase.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|c:\\users\\dell\\source\\repos\\itrack\\chatbotmvcform4.6\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|c:\\users\\dell\\source\\repos\\itrack\\chatbotmvcform4.6\\models\\chatrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\packages.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:packages.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\global.asax.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:global.asax.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\models\\chatrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:models\\chatrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -19,36 +71,12 @@
       "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:models\\chatresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\packages.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
-      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:packages.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
-      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\global.asax.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:global.asax.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\favicon.ico||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:favicon.ico||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\views\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
-      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|c:\\users\\dell\\source\\repos\\itrack\\chatbotmvcform4.6\\views\\_viewstart.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\_viewstart.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\models\\dynamicfield.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:models\\dynamicfield.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\views\\home\\contact.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{29DCCF38-A66B-4B23-986C-CEE891B30D14}|ChatbotMvcForm4.6.csproj|solutionrelative:views\\home\\contact.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\ImpactAnalysis.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -78,7 +106,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 319,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -90,45 +118,137 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "packages.config",
-              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\packages.config",
-              "RelativeDocumentMoniker": "packages.config",
-              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\packages.config",
-              "RelativeToolTip": "packages.config",
+              "DocumentIndex": 1,
+              "Title": "Error.cshtml",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Shared\\Error.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\Error.cshtml",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Shared\\Error.cshtml",
+              "RelativeToolTip": "Views\\Shared\\Error.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAADwvwAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
-              "WhenOpened": "2025-03-18T08:02:23.082Z"
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-05-15T07:57:57.381Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-05-15T07:57:32.548Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-05-15T07:55:43.338Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "NewTicket.cshtml",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\NewTicket.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\NewTicket.cshtml",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\NewTicket.cshtml",
+              "RelativeToolTip": "Views\\Home\\NewTicket.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-05-14T10:57:31.871Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "About.cshtml",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\About.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\About.cshtml",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\About.cshtml",
+              "RelativeToolTip": "Views\\Home\\About.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-05-15T07:55:32.91Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
+              "Title": "Contact.cshtml",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\Contact.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\Contact.cshtml",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\Contact.cshtml",
+              "RelativeToolTip": "Views\\Home\\Contact.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-13T09:53:32.424Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "EditCase.cshtml",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\EditCase.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\EditCase.cshtml",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\EditCase.cshtml",
+              "RelativeToolTip": "Views\\Home\\EditCase.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIsAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-13T09:53:28.592Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Web.config",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Web.config",
+              "RelativeDocumentMoniker": "Views\\Web.config",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Web.config",
+              "RelativeToolTip": "Views\\Web.config",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2025-03-18T08:01:21.058Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ViewCase.cshtml",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\ViewCase.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\ViewCase.cshtml",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\ViewCase.cshtml",
+              "RelativeToolTip": "Views\\Home\\ViewCase.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-05-14T10:57:32.64Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
               "Title": "Web.config",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Web.config",
               "RelativeDocumentMoniker": "Web.config",
               "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Web.config",
               "RelativeToolTip": "Web.config",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAABbAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAABNAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
               "WhenOpened": "2025-03-18T08:02:31.202Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ChatRequest.cs",
-              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\ChatRequest.cs",
-              "RelativeDocumentMoniker": "Models\\ChatRequest.cs",
-              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\ChatRequest.cs",
-              "RelativeToolTip": "Models\\ChatRequest.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAWwCYAAAAhAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-13T03:22:58.825Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 16,
               "Title": "ChatResponse.cs",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\ChatResponse.cs",
               "RelativeDocumentMoniker": "Models\\ChatResponse.cs",
@@ -140,45 +260,56 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 13,
+              "Title": "packages.config",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\packages.config",
+              "RelativeDocumentMoniker": "packages.config",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\packages.config",
+              "RelativeToolTip": "packages.config",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2025-03-18T08:02:23.082Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
               "Title": "HomeController.cs",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "Controllers\\HomeController.cs",
               "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Controllers\\HomeController.cs",
               "RelativeToolTip": "Controllers\\HomeController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAI0AAAARAAAAAAAAAA==",
+              "ViewState": "AgIAANMBAAAAAAAAAAAiwK0BAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-13T03:24:25.685Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "EditCase.cshtml",
-              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\EditCase.cshtml",
-              "RelativeDocumentMoniker": "Views\\Home\\EditCase.cshtml",
-              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\EditCase.cshtml*",
-              "RelativeToolTip": "Views\\Home\\EditCase.cshtml*",
-              "ViewState": "AgIAAGkAAAAAAAAAAAAgwH0AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-03-13T09:53:28.592Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 14,
               "Title": "Global.asax.cs",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Global.asax.cs",
               "RelativeDocumentMoniker": "Global.asax.cs",
               "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Global.asax.cs",
               "RelativeToolTip": "Global.asax.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAADwvxMAAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAADwvxcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-18T08:01:18.104Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 15,
+              "Title": "ChatRequest.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\ChatRequest.cs",
+              "RelativeDocumentMoniker": "Models\\ChatRequest.cs",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\ChatRequest.cs",
+              "RelativeToolTip": "Models\\ChatRequest.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAWwCYAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-13T03:22:58.825Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
               "Title": "favicon.ico - Icon [16x16, 32 \u4F4D, BMP]",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\favicon.ico",
               "RelativeDocumentMoniker": "favicon.ico",
@@ -189,19 +320,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "Web.config",
-              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Web.config",
-              "RelativeDocumentMoniker": "Views\\Web.config",
-              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Web.config",
-              "RelativeToolTip": "Views\\Web.config",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAOAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
-              "WhenOpened": "2025-03-18T08:01:21.058Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 18,
               "Title": "DynamicField.cs",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\DynamicField.cs",
               "RelativeDocumentMoniker": "Models\\DynamicField.cs",
@@ -213,73 +332,56 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 19,
               "Title": "ImpactAnalysis.cs",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\ImpactAnalysis.cs",
               "RelativeDocumentMoniker": "Models\\ImpactAnalysis.cs",
               "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\ImpactAnalysis.cs",
               "RelativeToolTip": "Models\\ImpactAnalysis.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAADwvxEAAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-13T03:21:03.47Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "Contact.cshtml",
-              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\Contact.cshtml",
-              "RelativeDocumentMoniker": "Views\\Home\\Contact.cshtml",
-              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\Home\\Contact.cshtml",
-              "RelativeToolTip": "Views\\Home\\Contact.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAADwvwAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-03-13T09:53:32.424Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 20,
               "Title": "AdditionalQuestions .cs",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\AdditionalQuestions .cs",
               "RelativeDocumentMoniker": "Models\\AdditionalQuestions .cs",
               "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\AdditionalQuestions .cs",
               "RelativeToolTip": "Models\\AdditionalQuestions .cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-13T03:22:29.554Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 21,
               "Title": "SupplementaryInfo .cs",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\SupplementaryInfo .cs",
               "RelativeDocumentMoniker": "Models\\SupplementaryInfo .cs",
               "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\SupplementaryInfo .cs",
               "RelativeToolTip": "Models\\SupplementaryInfo .cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAADwvwwAAABZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-13T03:22:11Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 22,
               "Title": "PreventiveMeasures.cs",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\PreventiveMeasures.cs",
               "RelativeDocumentMoniker": "Models\\PreventiveMeasures.cs",
               "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\PreventiveMeasures.cs",
               "RelativeToolTip": "Models\\PreventiveMeasures.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAADwvw0AAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-13T03:21:57.666Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 23,
               "Title": "Resolution.cs",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\Resolution.cs",
               "RelativeDocumentMoniker": "Models\\Resolution.cs",
               "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\Resolution.cs",
               "RelativeToolTip": "Models\\Resolution.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAADwvw8AAABZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-13T03:21:22.042Z"
             }
@@ -303,13 +405,26 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "TeBSiTrackDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\TeBSiTrackDbContext.cs",
+              "RelativeDocumentMoniker": "Models\\TeBSiTrackDbContext.cs",
+              "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Models\\TeBSiTrackDbContext.cs",
+              "RelativeToolTip": "Models\\TeBSiTrackDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAkAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-13T11:20:25.06Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 9,
               "Title": "_ViewStart.cshtml",
               "DocumentMoniker": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\_ViewStart.cshtml",
               "RelativeDocumentMoniker": "Views\\_ViewStart.cshtml",
               "ToolTip": "C:\\Users\\Dell\\source\\repos\\ITrack\\ChatbotMvcForm4.6\\Views\\_ViewStart.cshtml",
               "RelativeToolTip": "Views\\_ViewStart.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAADwvwAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-05-05T06:45:40.272Z",
               "EditorCaption": ""

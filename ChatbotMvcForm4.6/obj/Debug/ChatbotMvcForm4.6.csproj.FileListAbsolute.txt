@@ -84,6 +84,8 @@ C:\Users\Dell\source\repos\ChatbotMvcForm4.6\bin\zh-Hans\System.Web.WebPages.Raz
 C:\Users\Dell\source\repos\ChatbotMvcForm4.6\obj\Debug\ChatbotM.B5395F69.Up2Date
 C:\Users\Dell\source\repos\ChatbotMvcForm4.6\obj\Debug\ChatbotMvcForm4.6.dll
 C:\Users\Dell\source\repos\ChatbotMvcForm4.6\obj\Debug\ChatbotMvcForm4.6.pdb
+C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\obj\Debug\ChatbotMvcForm4.6.csproj.AssemblyReference.cache
+C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\obj\Debug\ChatbotMvcForm4.6.csproj.CoreCompileInputs.cache
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\ChatbotMvcForm4.6.dll.config
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\ChatbotMvcForm4.6.dll
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\ChatbotMvcForm4.6.pdb
@@ -137,6 +139,8 @@ C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\roslyn\vbc.rsp
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\roslyn\VBCSCompiler.exe
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\roslyn\VBCSCompiler.exe.config
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\Antlr3.Runtime.dll
+C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\EntityFramework.dll
+C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\EntityFramework.SqlServer.dll
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\Microsoft.Web.Infrastructure.dll
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\Newtonsoft.Json.dll
@@ -148,6 +152,8 @@ C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\System.Web.WebPages.Depl
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\System.Web.WebPages.dll
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\System.Web.WebPages.Razor.dll
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\WebGrease.dll
+C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\EntityFramework.xml
+C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\EntityFramework.SqlServer.xml
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\System.Web.Helpers.xml
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\System.Web.Mvc.xml
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\System.Web.Optimization.xml
@@ -165,8 +171,6 @@ C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\zh-Hans\System.Web.Razor
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\zh-Hans\System.Web.WebPages.resources.dll
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\zh-Hans\System.Web.WebPages.Deployment.resources.dll
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\bin\zh-Hans\System.Web.WebPages.Razor.resources.dll
-C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\obj\Debug\ChatbotMvcForm4.6.csproj.AssemblyReference.cache
-C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\obj\Debug\ChatbotMvcForm4.6.csproj.CoreCompileInputs.cache
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\obj\Debug\ChatbotM.B5395F69.Up2Date
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\obj\Debug\ChatbotMvcForm4.6.dll
 C:\Users\Dell\source\repos\ITrack\ChatbotMvcForm4.6\obj\Debug\ChatbotMvcForm4.6.pdb

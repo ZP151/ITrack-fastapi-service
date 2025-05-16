@@ -1,15 +1,96 @@
-﻿@{
+﻿@model ChatbotMvcForm4._6.Models.Case
+@{
     ViewBag.Title = "Chatbot Interaction";
 }
 
 <h2>Issue Description</h2>
-<textarea id="issueDesc" class="form-control" rows="5"></textarea>
-<br>
-<div class="action-buttons">
-    <button id="submitBtn" class="btn btn-primary">Submit</button>
-    <button id="viewReportBtn" class="btn btn-success" style="margin-left: 10px;">View RCA Report</button>
-</div>
-
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "editForm" }))
+{
+    @Html.HiddenFor(m => m.ID)
+    @Html.HiddenFor(m => m.RCAReport, new { id = "RCAReport" })
+    @Html.HiddenFor(m => m.CaseNumber)
+    @Html.HiddenFor(m => m.StatusIDFK)
+    
+    <!-- 添加必要的隐藏字段 -->
+    @Html.HiddenFor(m => m.CreatedDate)
+    @Html.HiddenFor(m => m.CreatedBy)
+    @Html.HiddenFor(m => m.UpdatedDate)
+    @Html.HiddenFor(m => m.UpdatedBy)
+    @Html.HiddenFor(m => m.DepartmentIDFK)
+    @Html.HiddenFor(m => m.CategoryIDFK)
+    @Html.HiddenFor(m => m.AssignedToIDFK)
+    @Html.HiddenFor(m => m.IsPrivate)
+    @Html.HiddenFor(m => m.ResolutionDate)
+    @Html.HiddenFor(m => m.Environment)
+    @Html.HiddenFor(m => m.TaskID)
+    @Html.HiddenFor(m => m.DefectPhaseID)
+    @Html.HiddenFor(m => m.RCAID)
+    @Html.HiddenFor(m => m.Subject)
+    @Html.HiddenFor(m => m.Name)
+    @Html.HiddenFor(m => m.AdditionInformation)
+    
+    <div>
+        <label>PROJECT *</label>
+        @Html.TextBoxFor(m => m.Project, new { @class = "form-control", required = "required" })
+    </div>
+    <div>
+        <label>CATEGORY *</label>
+        @Html.TextBoxFor(m => m.Category, new { @class = "form-control", required = "required" })
+    </div>
+    <div>
+        <label>SEVERITY *</label>
+        @Html.TextBoxFor(m => m.Priority, new { @class = "form-control", required = "required" })
+    </div>
+    <div>
+        <label>PRIORITY *</label>
+        @Html.TextBoxFor(m => m.PREFERENCE, new { @class = "form-control", required = "required" })
+    </div>
+    <div>
+        <label>DEFECT PHASE *</label>
+        @Html.TextBoxFor(m => m.DefectPhase, new { @class = "form-control", required = "required" })
+    </div>
+    <div>
+        <label>TICKET OWNER *</label>
+        @Html.TextBoxFor(m => m.TicketOwner, new { @class = "form-control", required = "required" })
+    </div>
+    <div>
+        <label>EMAIL *</label>
+        @Html.TextBoxFor(m => m.Email, new { @class = "form-control", required = "required" })
+    </div>
+    <div>
+        <label>CONTACT NO</label>
+        @Html.TextBoxFor(m => m.ContactNo, new { @class = "form-control" })
+    </div>
+    <div>
+        <label>ASSIGNED TO</label>
+        @Html.TextBoxFor(m => m.AssignedTo, new { @class = "form-control" })
+    </div>
+    <div>
+        <label>SUMMARY *</label>
+        @Html.TextBoxFor(m => m.Summary, new { @class = "form-control", required = "required" })
+    </div>
+    <div>
+        <label>DESCRIPTION *</label>
+        @Html.TextAreaFor(m => m.Description, new { @class = "form-control", required = "required", rows = 4 })
+    </div>
+    <div>
+        <label>CHANGE STATUS TO *</label>
+        @Html.DropDownList("ChangeStatusTo", new SelectList(new[]{"Open","Closed","In Progress"}), "Select Status", new { @class = "form-control" })
+    </div>
+    <div>
+        <label>RCA</label>
+        @Html.TextBoxFor(m => m.RCA, new { @class = "form-control", @readonly = "readonly" })
+        <button type="button" id="viewRCAReportBtn" class="btn btn-success btn-sm" style="margin-top:5px;">View RCA Report</button>
+    </div>
+    <div>
+        <label>LINK TICKETS</label>
+        @Html.TextBoxFor(m => m.LinkedTickets, new { @class = "form-control" })
+    </div>
+    <div style="margin-top:20px">
+        <button type="submit" class="btn btn-primary" id="btnSubmit">Save</button>
+        <a href="@Url.Action("ViewCase", "Home", new { id = Model.ID })" class="btn btn-default">Cancel</a>
+    </div>
+}
 
 <!-- Chatbot Window -->
 <div id="chatbotWindow">
@@ -365,12 +446,89 @@
         margin-left: 5px;
         cursor: pointer;
     }
+
+    /* AI推荐窗口样式 */
+    .recommendation-window {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        max-width: 800px;
+        max-height: 80vh;
+        background: white;
+        border: 1px solid #ccc;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .recommendation-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background: #f0f0f0;
+        border-bottom: 1px solid #ccc;
+    }
+    
+    .recommendation-title h3 {
+        margin: 0;
+    }
+    
+    .recommendation-title button {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+    }
+    
+    .recommendation-content {
+        padding: 20px;
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+    
+    .recommendation-content .section {
+        margin-bottom: 20px;
+    }
+    
+    .recommendation-content h4 {
+        margin-top: 0;
+        color: #333;
+    }
+    
+    .recommendation-content ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    .recommendation-content li {
+        margin-bottom: 10px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+    
+    .recommendation-content li strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #007bff;
+    }
+    
+    .recommendation-content li p {
+        margin: 0;
+        color: #666;
+    }
 </style>
 
 @section scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
+        let isChatbotFinished = false;
+        
         $(document).ready(function() {
             let isFinal = false;
             let issueDesc = "";
@@ -535,10 +693,8 @@
                         $("#loader").hide();
 
                         if (response.status === "success") {
-                            // 处理成功响应
-                            
-                            // 检查是否有RCA报告
                             if (response.rca_report) {
+                                $("#RCAReport").val(response.rca_report);
                                 // 隐藏聊天窗口
                                 $("#chatbotWindow").hide();
                                 $("#chatMessages").html("");
@@ -550,14 +706,14 @@
                                 alert("Form submitted successfully! You can now view the RCA report.");
                                 
                                 // 启用提交按钮和View Report按钮
-                                $("#submitBtn").prop("disabled", false);
+                                $("#btnSubmit").prop("disabled", false);
                                 $("#viewReportBtn").prop("disabled", false);
                             } else {
                                 // 如果没有RCA报告，显示常规成功消息
                                 $("#chatbotWindow").hide();
                                 $("#chatMessages").html("");
                                 alert("Form submitted successfully!");
-                                $("#submitBtn").prop("disabled", false);
+                                $("#btnSubmit").prop("disabled", false);
                             }
                         } else if (response.error) {
                             // 处理错误响应
@@ -771,6 +927,7 @@
                 console.log("Updated formData:", JSON.stringify(formData));
             }
 
+            // 将服务器响应映射到表单数据格式
             function mapResponseToFormData(response) {
                 return {
                     category: response.Category || "",
@@ -1115,33 +1272,28 @@
                 formContainer.append(...createDynamicSection("additional_questions", "Additional Questions"));
             }
 
-            // 添加显示RCA报告的函数
+            // 添加showRCAReport函数用于显示RCA报告
             function showRCAReport(reportContent) {
-                // 创建RCA报告显示窗口
+                // 创建RCA报告窗口
                 let rcaReportWindow = $("<div>").attr("id", "rcaReportWindow").addClass("rca-report-window");
                 
                 // 添加标题栏
                 let titleBar = $("<div>").addClass("rca-report-title");
-                titleBar.append($("<h3>").text("Root Cause Analysis Report (RCA)"));
+                titleBar.append($("<h3>").text("RCA"));
                 
                 // 添加关闭按钮
-                let closeBtn = $("<button>").html("&times;").click(function() {
+                let closeBtn = $("<button>").html("&times;").click(function () {
                     $("#rcaReportWindow").remove();
                     $("#rcaReportOverlay").remove();
                 });
                 titleBar.append(closeBtn);
                 
                 // 添加下载按钮
-                let downloadBtn = $("<button>").text("Download Report").addClass("download-btn").click(function() {
-                    // 创建一个Blob对象
+                let downloadBtn = $("<button>").text("Download report").addClass("download-btn").click(function () {
                     let blob = new Blob([reportContent], { type: "text/plain;charset=utf-8" });
-                    
-                    // 创建一个下载链接
                     let link = document.createElement("a");
                     link.href = URL.createObjectURL(blob);
-                    link.download = "RCA_Report_" + new Date().toISOString().slice(0,10) + ".txt";
-                    
-                    // 触发下载
+                    link.download = "RCA_Report_" + new Date().toISOString().slice(0, 10) + ".txt";
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -1151,64 +1303,218 @@
                 // 添加报告内容
                 let reportContentDiv = $("<div>").addClass("rca-report-content");
                 
-                // 确保内容中没有中文节标题
-                let englishReport = reportContent;
-                
-                // 替换可能的中文节标题为英文
-                englishReport = englishReport.replace(/# 根本原因分析报告 \(RCA\)/g, "# Root Cause Analysis Report (RCA)");
-                englishReport = englishReport.replace(/## \d+\. 问题概述/g, "## 1. Problem Overview");
-                englishReport = englishReport.replace(/## \d+\. 根本原因/g, "## 2. Root Causes");
-                englishReport = englishReport.replace(/## \d+\. 影响分析/g, "## 3. Impact Analysis");
-                englishReport = englishReport.replace(/## \d+\. 解决方案/g, "## 4. Resolution");
-                englishReport = englishReport.replace(/## \d+\. 预防措施/g, "## 5. Preventive Measures");
-                englishReport = englishReport.replace(/## \d+\. 补充信息/g, "## 6. Supplementary Information");
-                englishReport = englishReport.replace(/## \d+\. 结论/g, "## 7. Conclusion");
-                
-                // 替换可能的中文字段名为英文
-                englishReport = englishReport.replace(/- \*\*问题类别\*\*:/g, "- **Category**:");
-                englishReport = englishReport.replace(/- \*\*任务类型\*\*:/g, "- **Task Type**:");
-                englishReport = englishReport.replace(/- \*\*摘要\*\*:/g, "- **Summary**:");
-                englishReport = englishReport.replace(/- \*\*详细描述\*\*:/g, "- **Detailed Description**:");
-                englishReport = englishReport.replace(/- \*\*受影响模块\*\*:/g, "- **Affected Module**:");
-                englishReport = englishReport.replace(/- \*\*严重程度\*\*:/g, "- **Severity**:");
-                englishReport = englishReport.replace(/- \*\*优先级\*\*:/g, "- **Priority**:");
-                englishReport = englishReport.replace(/- \*\*缺陷阶段\*\*:/g, "- **Defect Phase**:");
-                englishReport = englishReport.replace(/- \*\*已应用修复\*\*:/g, "- **Fix Applied**:");
-                englishReport = englishReport.replace(/- \*\*通用措施\*\*:/g, "- **General Measure**:");
-                
-                // 格式化报告内容（保留换行等格式）
-                let formattedReport = englishReport.replace(/\n/g, "<br>");
-                
-                // 处理Markdown格式
-                // 标题处理
+                // 格式化报告内容
+                let formattedReport = reportContent.replace(/\n/g, "<br>");
                 formattedReport = formattedReport.replace(/# (.*?)<br>/g, "<h1>$1</h1>");
                 formattedReport = formattedReport.replace(/## (.*?)<br>/g, "<h2>$1</h2>");
                 formattedReport = formattedReport.replace(/### (.*?)<br>/g, "<h3>$1</h3>");
-                
-                // 列表处理
                 formattedReport = formattedReport.replace(/- (.*?)<br>/g, "<ul><li>$1</li></ul>");
-                
-                // 粗体处理
                 formattedReport = formattedReport.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
                 
                 reportContentDiv.html(formattedReport);
                 
-                // 将元素添加到窗口
                 rcaReportWindow.append(titleBar);
                 rcaReportWindow.append(reportContentDiv);
                 
-                // 创建一个遮罩层
+                // 添加覆盖层，点击时关闭报告窗口
                 let overlay = $("<div>").attr("id", "rcaReportOverlay").addClass("rca-report-overlay");
-                overlay.click(function(e) {
+                overlay.click(function (e) {
                     if (e.target === this) {
                         $("#rcaReportWindow").remove();
                         $("#rcaReportOverlay").remove();
                     }
                 });
                 
-                // 添加到文档
                 $("body").append(overlay);
                 $("body").append(rcaReportWindow);
+            }
+            
+            // 为View RCA Report按钮添加点击事件
+            $("#viewRCAReportBtn").on("click", function(e) {
+                e.preventDefault();
+                console.log("View RCA Report按钮被点击");
+                
+                // 获取RCA报告数据
+                let reportData = $("#RCAReport").val();
+                
+                console.log("RCA Report Data:", reportData ? "Found (length: " + reportData.length + ")" : "Not found");
+                
+                if (reportData && reportData.trim() !== "") {
+                    // 显示RCA报告窗口
+                    showRCAReport(reportData);
+                } else {
+                    // 提示用户没有报告
+                    alert("此工单暂无RCA报告。请先提交状态为'Closed'的表单。");
+                }
+            });
+            
+            // 恢复表单提交拦截处理
+            $("#editForm").off("submit").on("submit", function(e) {
+                console.log("表单提交，状态检查: ChangeStatusTo=", $("#ChangeStatusTo").val(), 
+                           "isChatbotFinished=", isChatbotFinished);
+                
+                // 只有状态为Closed且未执行过Chatbot时拦截
+                if ($("#ChangeStatusTo").val() === "Closed" && !isChatbotFinished) {
+                    console.log("拦截表单提交，启动Chatbot");
+                    e.preventDefault(); // 阻止表单提交
+                    
+                    // 调用Chatbot触发函数
+                    triggerChatbotWindow();
+                    return false;
+                }
+                
+                console.log("允许表单正常提交：状态不是Closed或已执行过Chatbot");
+                return true; // 允许表单正常提交
+            });
+            
+            // 恢复确认按钮处理，确保正确保存RCA报告
+            $("#confirmBtn").off("click").on("click", function() {
+                isChatbotFinished = true;
+                
+                // 显示加载动画
+                $("#loader").css("display", "flex").show();
+                
+                // 发送最终请求
+                $.ajax({
+                    url: '@Url.Action("ChatbotOptimize", "Home")',
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify({ formData: formData, isFinal: true }),
+                    success: function(response) {
+                        $("#loader").hide();
+                        
+                        if (response.status === "success") {
+                            // 如果有RCA报告，保存起来
+                            if (response.rca_report) {
+                                // 存储到隐藏字段
+                                $("#RCAReport").val(response.rca_report);
+                                
+                                // 同时存储到内存中，方便快速访问
+                                $("body").data("rcaReportData", response.rca_report);
+                                
+                                console.log("成功接收RCA报告，长度:", response.rca_report.length);
+                                console.log("报告前50个字符:", response.rca_report.substring(0, 50));
+                                
+                                // 启用View RCA Report按钮
+                                $("#viewRCAReportBtn").prop("disabled", false);
+                                
+                                // 弹窗提示
+                                alert("RCA报告已生成，您可以点击'View RCA Report'按钮查看。");
+                            }
+                            
+                            // 隐藏Chatbot窗口
+                            $("#chatbotWindow").hide();
+                            $("#chatMessages").html("");
+                            
+                            // 启用提交按钮
+                            $("#btnSubmit").prop("disabled", false);
+                        } else if (response.error) {
+                            console.error("API错误:", response.error);
+                            alert("错误: " + response.error);
+                        } else {
+                            alert("操作完成，但状态未知");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $("#loader").hide();
+                        console.error("错误:", error);
+                        alert("Chatbot服务调用失败，请重试。");
+                    }
+                });
+            });
+            
+            function triggerChatbotWindow() {
+                // 获取表单字段值
+                var category = $("#Category").val() || "";
+                var severity = $("#Priority").val() || "";
+                var task = $("#Task").val() || "";
+                var priority = $("#PREFERENCE").val() || "";
+                var defectPhase = $("#DefectPhase").val() || "";
+                var summary = $("#Summary").val() || "";
+                var description = $("#Description").val() || "";
+                
+                if (description.trim() === "") {
+                    alert("请输入问题描述");
+                    return;
+                }
+                
+                // 显示Chatbot窗口
+                $("#chatbotWindow").css("display", "flex").show();
+                $("#btnSubmit").prop("disabled", true);
+                $("#loader").css("display", "flex").show();
+                
+                // 初始化formData
+                formData = {
+                    category: category,
+                    task: task,
+                    summary: summary,
+                    description: description,
+                    root_causes: [""],
+                    conclusion: "",
+                    impact_analysis: {
+                        affected_module: "",
+                        severity: severity,
+                        priority: priority,
+                        defect_phase: defectPhase,
+                        dynamic_fields: []
+                    },
+                    resolution: { fix_applied: "", dynamic_fields: [] },
+                    preventive_measures: { general_measure: "", dynamic_fields: [] },
+                    supplementary_info: { dynamic_fields: [] },
+                    additional_questions: { dynamic_fields: [] }
+                };
+                
+                // 初始化section状态
+                sectionStates = {
+                    category: { expanded: true, visible: false },
+                    task: { expanded: true, visible: false },
+                    summary: { expanded: true, visible: false },
+                    description: { expanded: true, visible: false },
+                    root_causes: { expanded: true, visible: true },
+                    conclusion: { expanded: true, visible: true },
+                    impact_analysis: { expanded: true, visible: true },
+                    resolution: { expanded: true, visible: true },
+                    preventive_measures: { expanded: true, visible: true },
+                    supplementary_info: { expanded: true, visible: true },
+                    additional_questions: { expanded: true, visible: true }
+                };
+                
+                // 加载表单并发送请求
+                loadForm();
+                
+                // 直接发送API请求
+                $.ajax({
+                    url: '@Url.Action("ChatbotOptimize", "Home")',
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify({ formData: formData, isFinal: false }),
+                    success: function(response) {
+                        $("#loader").hide();
+                        
+                        // 更新formData
+                        Object.keys(formData).forEach(key => {
+                            if (typeof formData[key] === "object" && formData[key] !== null) {
+                                Object.assign(formData[key], mapResponseToFormData(response)[key]);
+                            } else {
+                                formData[key] = mapResponseToFormData(response)[key];
+                            }
+                        });
+                        
+                        // 重新加载表单
+                        loadForm();
+                        
+                        // 显示消息
+                        let formattedJson = JSON.stringify(response, null, 2);
+                        appendMessage("Assistant", formattedJson, "ai-message");
+                    },
+                    error: function(xhr, status, error) {
+                        $("#loader").hide();
+                        console.error("Error:", error);
+                        alert("Chatbot服务调用失败，请重试。");
+                    }
+                });
             }
         });
     </script>

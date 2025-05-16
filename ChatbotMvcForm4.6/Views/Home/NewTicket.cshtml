@@ -1,0 +1,1008 @@
+@model ChatbotMvcForm4._6.Models.Case
+@{
+    ViewBag.Title = "New Ticket";
+}
+<h2>New Ticket</h2>
+
+@using (Html.BeginForm())
+{
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>PROJECT *</label>
+                @Html.TextBoxFor(m => m.Project, new { @class = "form-control", required = "required" })
+            </div>
+            <div class="form-group">
+                <label>CATEGORY *</label>
+                @Html.TextBoxFor(m => m.Category, new { @class = "form-control", required = "required" })
+            </div>
+            <div class="form-group">
+                <label>SEVERITY *</label>
+                @Html.TextBoxFor(m => m.PriorityName, new { @class = "form-control", required = "required" })
+                @Html.HiddenFor(m => m.Priority)
+            </div>
+            <div class="form-group">
+                <label>PRIORITY *</label>
+                @Html.TextBoxFor(m => m.SeverityName, new { @class = "form-control", required = "required" })
+                @Html.HiddenFor(m => m.PREFERENCE)
+            </div>
+            <div class="form-group">
+                <label>TASK *</label>
+                @Html.TextBoxFor(m => m.Task, new { @class = "form-control", required = "required" })
+            </div>
+            <div class="form-group">
+                <label>DEFECT PHASE *</label>
+                @Html.TextBoxFor(m => m.DefectPhase, new { @class = "form-control", required = "required" })
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>TICKET OWNER *</label>
+                @Html.TextBoxFor(m => m.TicketOwner, new { @class = "form-control", required = "required" })
+            </div>
+            <div class="form-group">
+                <label>EMAIL *</label>
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", required = "required" })
+            </div>
+            <div class="form-group">
+                <label>CONTACT NO</label>
+                @Html.TextBoxFor(m => m.ContactNo, new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                <label>ASSIGNED TO</label>
+                @Html.TextBoxFor(m => m.AssignedTo, new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                <label>SUMMARY *</label>
+                @Html.TextBoxFor(m => m.Summary, new { @class = "form-control", required = "required" })
+            </div>
+            <div class="form-group">
+                <label>DESCRIPTION *</label>
+                @Html.TextAreaFor(m => m.Description, new { @class = "form-control", required = "required", rows = 4 })
+            </div>
+        </div>
+    </div>
+    
+    <div class="row" style="margin-top:20px">
+        <div class="col-md-6">
+            <button type="button" id="getAIRecommendationBtn" class="btn btn-info">
+                <i class="glyphicon glyphicon-flash"></i> Get AI Recommendation
+            </button>
+            <span id="aiStatus" style="margin-left:10px; display:none;">
+                <img src="/Content/loading.gif" width="20" height="20" id="loadingIcon" />
+                <span id="statusText"></span>
+            </span>
+        </div>
+        <div class="col-md-6 text-right">
+            <button type="submit" class="btn btn-primary">
+                <i class="glyphicon glyphicon-save"></i> Create Ticket
+            </button>
+        </div>
+    </div>
+}
+
+<!-- AI推荐结果模态窗口 -->
+<div class="modal fade" id="aiRecommendationModal" tabindex="-1" role="dialog" aria-labelledby="aiRecommendationModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="aiRecommendationModalLabel">AI Ticket Recommendation</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <!-- 相似案例警告 -->
+                <div id="similarCaseWarning" class="alert alert-warning" style="display: none; margin-bottom: 15px;">
+                    <strong><i class="glyphicon glyphicon-exclamation-sign"></i> Found highly similar issue tickets !</strong> 
+                    Please review or associate these tickets instead of creating a new one.
+                </div>
+                
+                <!-- 标签页导航 -->
+                <ul class="nav nav-tabs" id="recommendationTabs" role="tablist">
+                    <li role="presentation">
+                        <a href="#predictions-tab" id="predictionsTabLink" aria-controls="predictions-tab" role="tab" data-toggle="tab">
+                            <i class="glyphicon glyphicon-stats"></i> Predictions
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#rca-tab" id="rcaTabLink" aria-controls="rca-tab" role="tab" data-toggle="tab">
+                            <i class="glyphicon glyphicon-search"></i> Root Cause Analysis
+                        </a>
+                    </li>
+                    <li role="presentation" class="active">
+                        <a href="#similar-cases-tab" id="similarCasesTabLink" aria-controls="similar-cases-tab" role="tab" data-toggle="tab">
+                            <i class="glyphicon glyphicon-copy"></i> Similar Cases
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#debug-tab" id="debugTabLink" aria-controls="debug-tab" role="tab" data-toggle="tab">
+                            <i class="glyphicon glyphicon-console"></i> Debug Info
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- 标签页内容 -->
+                <div class="tab-content" id="recommendationTabContent">
+                    <!-- 预测结果标签页 -->
+                    <div role="tabpanel" class="tab-pane" id="predictions-tab">
+                        <div id="predictionsContent">
+                            <div class="text-center">
+                                <i class="glyphicon glyphicon-refresh spinning"></i> Loading predictions...
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <button id="applyPredictionsBtn" class="btn btn-success" style="display:none;">
+                                <i class="glyphicon glyphicon-ok"></i> Apply Predictions to Form
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- RCA标签页 -->
+                    <div role="tabpanel" class="tab-pane" id="rca-tab">
+                        <div id="rcaContent">
+                            <div class="text-center">
+                                <i class="glyphicon glyphicon-refresh spinning"></i> Loading root cause analysis...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 相似案例标签页 -->
+                    <div role="tabpanel" class="tab-pane active" id="similar-cases-tab">
+                        <div id="similarCasesContent">
+                            <div class="text-center">
+                                <i class="glyphicon glyphicon-refresh spinning"></i> Loading similar cases...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 调试信息标签页 -->
+                    <div role="tabpanel" class="tab-pane" id="debug-tab">
+                        <div id="debugContent" style="font-family: monospace; font-size: 12px;">
+                            <p>No debug information available.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 确认创建工单对话框 -->
+<div class="modal fade" id="confirmTicketCreationModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirm New Ticket Creation</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="similarTicketsWarning" class="alert alert-warning">
+                    <strong><i class="glyphicon glyphicon-exclamation-sign"></i> Attention!</strong> 
+                    <span id="similarTicketsCount"></span>
+                </div>
+                <p>Are you sure you want to create a new ticket instead of associating with an existing one?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Return to Similar Tickets</button>
+                <button type="button" class="btn btn-primary" id="confirmCreateTicket">Confirm New Ticket Creation</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function() {
+        // 相似度阈值设置
+        var SIMILARITY_THRESHOLD = 60; // 60%
+        
+        // 储存最后一次响应数据，用于重新打开窗口时的恢复
+        var lastResponseData = null;
+        var hasHighSimilarityCase = false;
+        var linkedCases = [];
+        
+        // 阻止表单直接提交，添加确认步骤
+        $('form').on('submit', function(e) {
+            // 如果有高相似度工单且未确认，显示确认对话框
+            if (hasHighSimilarityCase && lastResponseData && !e.originalEvent.confirmed) {
+                e.preventDefault();
+                showConfirmationDialog();
+                return false;
+            }
+            return true;
+        });
+        
+        // 确认创建工单
+        $('#confirmCreateTicket').on('click', function() {
+            // 标记事件为已确认
+            var submitEvent = $.Event('submit');
+            submitEvent.confirmed = true;
+            
+            // 触发表单提交
+            $('form').trigger(submitEvent);
+        });
+        
+        // 显示确认对话框
+        function showConfirmationDialog() {
+            var count = 0;
+            if (lastResponseData && lastResponseData.similarCases) {
+                count = lastResponseData.similarCases.filter(function(item) {
+                    return item.similarity >= SIMILARITY_THRESHOLD;
+                }).length;
+            }
+            
+            $('#similarTicketsCount').text('We found ' + count + ' highly similar issue tickets.');
+            $('#confirmTicketCreationModal').modal('show');
+        }
+        
+        // 完全手动处理标签切换，不依赖Bootstrap的自动行为
+        $('#recommendationTabs a').on('click', function (e) {
+            e.preventDefault();
+            
+            // 移除所有标签的active类
+            $('#recommendationTabs li').removeClass('active');
+            // 设置当前点击的标签为active
+            $(this).parent('li').addClass('active');
+            
+            // 获取目标面板的ID
+            var tabId = $(this).attr('href');
+            
+            // 隐藏所有面板
+            $('.tab-pane').removeClass('active');
+            // 显示当前标签对应的面板
+            $(tabId).addClass('active');
+            
+            // 调试信息
+            console.log('切换到标签: ' + tabId);
+        });
+
+        // 模态窗口打开前的事件
+        $('#aiRecommendationModal').on('show.bs.modal', function (e) {
+            console.log('模态窗口正在打开...');
+            
+            // 如果有保存的响应数据，则恢复上次的内容
+            if (lastResponseData) {
+                processAiResponse(lastResponseData);
+            }
+            
+            // 确保相似案例标签是活动的
+            $('#recommendationTabs li:nth-child(3)').addClass('active').siblings().removeClass('active');
+            $('#similar-cases-tab').addClass('active').siblings().removeClass('active');
+        });
+        
+        // 模态窗口显示后重置标签页
+        $('#aiRecommendationModal').on('shown.bs.modal', function () {
+            console.log('模态窗口已完全显示');
+            
+            // 手动激活Similar Cases标签
+            $('#recommendationTabs li:nth-child(3)').addClass('active').siblings().removeClass('active');
+            $('#similar-cases-tab').addClass('active').siblings().removeClass('active');
+        });
+        
+        // 确保关闭按钮可以正常关闭模态窗口
+        $('.modal-header .close, .modal-footer .btn-default').on('click', function(e) {
+            console.log('点击了关闭按钮');
+            $('#aiRecommendationModal').modal('hide');
+            e.stopPropagation(); // 阻止事件冒泡
+        });
+        
+        // 确保案例详情模态窗口的关闭按钮可以正常工作
+        $(document).on('click', '#caseDetailsModal .close, #caseDetailsModal .close-case-details', function(e) {
+            console.log('点击了案例详情关闭按钮');
+            $('#caseDetailsModal').modal('hide');
+            e.stopPropagation(); // 阻止事件冒泡
+        });
+        
+        // 添加关联案例
+        $(document).on('click', '.link-case-btn', function() {
+            var caseId = $(this).data('case-id');
+            
+            // 如果已关联则取消关联，否则添加关联
+            var index = linkedCases.indexOf(caseId);
+            if (index !== -1) {
+                linkedCases.splice(index, 1);
+                $(this).removeClass('btn-success').addClass('btn-default');
+                $(this).find('i').removeClass('glyphicon-link').addClass('glyphicon-paperclip');
+                $(this).find('span').text(' Link This Case');
+            } else {
+                linkedCases.push(caseId);
+                $(this).removeClass('btn-default').addClass('btn-success');
+                $(this).find('i').removeClass('glyphicon-paperclip').addClass('glyphicon-link');
+                $(this).find('span').text(' Linked');
+            }
+            
+            // 更新LinkedTickets字段
+            updateLinkedTicketsField();
+            
+            console.log('当前关联案例: ' + linkedCases.join(', '));
+        });
+        
+        // 更新关联工单字段
+        function updateLinkedTicketsField() {
+            // 检查表单是否有LinkedTickets字段
+            var linkedTicketsField = $('#LinkedTickets');
+            
+            // 如果字段不存在，则创建一个隐藏字段
+            if (linkedTicketsField.length === 0) {
+                $('form').append('<input type="hidden" id="LinkedTickets" name="LinkedTickets" value="" />');
+                linkedTicketsField = $('#LinkedTickets');
+            }
+            
+            // 更新字段值
+            linkedTicketsField.val(linkedCases.join(','));
+        }
+        
+        // 应用RCA到当前工单
+        $(document).on('click', '.apply-rca-btn', function() {
+            var caseId = $(this).data('case-id');
+            var caseItem = null;
+            
+            // 查找对应的案例数据
+            if (lastResponseData && lastResponseData.similarCases) {
+                $.each(lastResponseData.similarCases, function(i, item) {
+                    if ((item.id && item.id == caseId) || (item.caseNumber && item.caseNumber == caseId)) {
+                        caseItem = item;
+                        return false; // 找到后跳出循环
+                    }
+                });
+            }
+            
+            if (caseItem) {
+                // 应用相似案例的字段到表单
+                if (caseItem.categoryName || caseItem.category) {
+                    $("#Category").val(caseItem.categoryName || caseItem.category);
+                }
+                
+                if (caseItem.taskName || caseItem.task) {
+                    $("#Task").val(caseItem.taskName || caseItem.task);
+                }
+                
+                if (caseItem.priority) {
+                    // 检查优先级格式并设置
+                    var priority = caseItem.priority;
+                    if (priority.match(/^\d+$/) && parseInt(priority) >= 1 && parseInt(priority) <= 3) {
+                        $("#SeverityName").val(["High", "Medium", "Low"][parseInt(priority) - 1]);
+                    }
+                }
+                
+                if (caseItem.defectPhase) {
+                    $("#DefectPhase").val(caseItem.defectPhase);
+                }
+                
+                // 显示提示信息并关闭模态窗口
+                showStatus("Applied case fields and linked to case #" + caseId, false);
+                
+                // 自动关联案例
+                if (linkedCases.indexOf(caseId) === -1) {
+                    linkedCases.push(caseId);
+                    updateLinkedTicketsField();
+                }
+                
+                // 关闭模态窗口
+                $('#aiRecommendationModal').modal('hide');
+                
+                setTimeout(function() { 
+                    $("#aiStatus").fadeOut(); 
+                }, 3000);
+            }
+        });
+        
+        // AI推荐按钮点击事件
+        $("#getAIRecommendationBtn").on('click', function(e) {
+            console.log('点击了AI推荐按钮');
+            var description = $("#Description").val();
+            if (!description) {
+                alert("Please enter a description first.");
+                return;
+            }
+            
+            // 显示加载状态
+            showStatus("Requesting AI recommendation...", true);
+            $("#getAIRecommendationBtn").prop("disabled", true);
+            
+            // 清空并初始化模态窗口内容
+            $("#predictionsContent").html('<div class="text-center"><i class="glyphicon glyphicon-refresh spinning"></i> Loading predictions...</div>');
+            $("#rcaContent").html('<div class="text-center"><i class="glyphicon glyphicon-refresh spinning"></i> Loading root cause analysis...</div>');
+            $("#similarCasesContent").html('<div class="text-center"><i class="glyphicon glyphicon-refresh spinning"></i> Loading similar cases...</div>');
+            $("#debugContent").html('<p>Sending request...</p>');
+            $("#applyPredictionsBtn").hide();
+            
+            // 重置相似度高的案例标志
+            hasHighSimilarityCase = false;
+            $("#similarCaseWarning").hide();
+            
+            // 显示模态窗口
+            $("#aiRecommendationModal").modal('show');
+            
+            // 准备请求数据
+            var formData = {
+                description: description,
+                summary: $("#Summary").val(),
+                category: $("#Category").val(),
+                severity: $("#PriorityName").val(),   // 使用显示用的字段
+                priority: $("#SeverityName").val(),   // 使用显示用的字段
+                task: $("#Task").val(),
+                defectPhase: $("#DefectPhase").val()
+            };
+            
+            // 添加到调试信息
+            $("#debugContent").append('<p>Request data: ' + JSON.stringify(formData) + '</p>');
+            
+            // 发送AJAX请求
+            $.ajax({
+                url: '@Url.Action("GetAIRecommendation", "Home")',
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    // 恢复按钮状态
+                    $("#getAIRecommendationBtn").prop("disabled", false);
+                    showStatus("AI recommendation completed", false);
+                    
+                    // 添加到调试信息
+                    $("#debugContent").append('<p>Response received. Processing...</p>');
+                    
+                    // 处理错误响应
+                    if (response.error) {
+                        $("#debugContent").append('<div class="alert alert-danger">' + 
+                                               '<strong>Error:</strong> ' + response.error + 
+                                               (response.details ? '<br/>Details: ' + response.details : '') + 
+                                               '</div>');
+                        return;
+                    }
+                    
+                    try {
+                        // 保存响应数据以便重新打开时恢复
+                        lastResponseData = response;
+                        
+                        // 处理预测结果
+                        processAiResponse(response);
+                    } catch (e) {
+                        $("#debugContent").append('<div class="alert alert-danger">' +
+                                               '<strong>Error processing response:</strong> ' + e.message +
+                                               '</div>');
+                        console.error("Error processing AI response:", e);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // 恢复按钮状态
+                    $("#getAIRecommendationBtn").prop("disabled", false);
+                    showStatus("Request failed: " + status, false);
+                    
+                    // 添加到调试信息
+                    $("#debugContent").html('<div class="alert alert-danger">' +
+                                         '<strong>AJAX Error:</strong> ' + status + ' - ' + error +
+                                         '<br/><br/>Response Text: ' + (xhr.responseText || "No response") +
+                                         '</div>');
+                    console.error("AI recommendation request failed:", status, error);
+                }
+            });
+        });
+        
+        // 模态窗口关闭后恢复按钮状态
+        $('#aiRecommendationModal').on('hidden.bs.modal', function () {
+            console.log('模态窗口已关闭');
+            $("#getAIRecommendationBtn").prop("disabled", false);
+        });
+        
+        // 显示状态信息
+        function showStatus(text, isLoading) {
+            $("#statusText").text(text);
+            $("#aiStatus").show();
+            if (isLoading) {
+                $("#loadingIcon").show();
+            } else {
+                $("#loadingIcon").hide();
+            }
+        }
+        
+        // 处理AI响应
+        function processAiResponse(response) {
+            // 添加到调试信息
+            $("#debugContent").html('<pre>' + formatJson(response) + '</pre>');
+            
+            // 处理预测结果
+            if (response.predictions && typeof response.predictions === 'object') {
+                var predictionsHtml = '<div class="panel panel-default">' +
+                                     '<div class="panel-heading"><h4>Field Predictions</h4></div>' +
+                                     '<div class="panel-body">';
+                
+                var hasPredictions = false;
+                for (var key in response.predictions) {
+                    if (response.predictions.hasOwnProperty(key)) {
+                        hasPredictions = true;
+                        predictionsHtml += '<div class="row" style="margin-bottom: 15px;">' +
+                                         '<div class="col-md-3"><strong>' + key + ':</strong></div>' +
+                                         '<div class="col-md-9">' + response.predictions[key] + '</div>' +
+                                         '</div>';
+                    }
+                }
+                
+                if (!hasPredictions) {
+                    predictionsHtml += '<p>No predictions available</p>';
+                } else {
+                    // 显示应用按钮
+                    $("#applyPredictionsBtn").show();
+                }
+                
+                predictionsHtml += '</div></div>';
+                $("#predictionsContent").html(predictionsHtml);
+                
+                // 绑定应用预测按钮事件
+                $("#applyPredictionsBtn").off('click').on('click', function() {
+                    applyPredictions(response.predictions);
+                });
+            } else {
+                $("#predictionsContent").html('<div class="alert alert-warning">No predictions available</div>');
+            }
+            
+            // 处理RCA建议
+            if (response.rcaSuggestion && typeof response.rcaSuggestion === 'string') {
+                var rcaHtml = '<div class="panel panel-default">' +
+                             '<div class="panel-heading"><h4>Root Cause Analysis</h4></div>' +
+                             '<div class="panel-body">' +
+                             formatRcaText(response.rcaSuggestion) +
+                             '</div></div>';
+                $("#rcaContent").html(rcaHtml);
+            } else {
+                $("#rcaContent").html('<div class="alert alert-warning">No RCA suggestion available</div>');
+            }
+            
+            // 处理相似案例
+            if (response.similarCases && Array.isArray(response.similarCases) && response.similarCases.length > 0) {
+                var casesHtml = '';
+                var highSimilarityCases = 0;
+                
+                $.each(response.similarCases, function(i, item) {
+                    var caseId = item.id || item.caseNumber || ("Case-" + (i+1));
+                    var similarity = item.similarity ? parseFloat(item.similarity) : 0;
+                    var similarityText = similarity.toFixed(1) + "%";
+                    var title = item.subject || item.summary || "No Title";
+                    
+                    // 检查是否为高相似度案例
+                    var isHighSimilarity = similarity >= SIMILARITY_THRESHOLD;
+                    if (isHighSimilarity) {
+                        highSimilarityCases++;
+                        hasHighSimilarityCase = true;
+                    }
+                    
+                    // 使用新的卡片样式来显示相似案例
+                    casesHtml += '<div class="case-card ' + (isHighSimilarity ? 'high-similarity' : '') + '" data-case-id="' + caseId + '">' +
+                               '<div class="card-header">' +
+                               '<h4>' +
+                               '<span class="similarity-badge' + (isHighSimilarity ? ' high' : '') + '">' + similarityText + '</span>' +
+                               'Case #' + caseId + 
+                               (title ? ' - ' + title : '') +
+                               '</h4></div>' +
+                               '<div class="card-body">';
+                    
+                    // 添加描述
+                    if (item.description) {
+                        casesHtml += '<p><strong>Description:</strong><br/>' + item.description + '</p>';
+                    }
+                    
+                    // 添加元数据表格
+                    casesHtml += '<table class="table table-striped table-bordered">' +
+                               '<tbody>';
+                               
+                    // 添加类别信息
+                    if (item.category || item.categoryName) {
+                        casesHtml += '<tr><th style="width:25%">Category</th>' +
+                                  '<td>' + (item.categoryName || item.category) + '</td></tr>';
+                    }
+                    
+                    // 添加任务信息
+                    if (item.task || item.taskName) {
+                        casesHtml += '<tr><th>Task</th>' +
+                                  '<td>' + (item.taskName || item.task) + '</td></tr>';
+                    }
+                    
+                    // 添加优先级信息
+                    if (item.priority) {
+                        casesHtml += '<tr><th>Priority</th>' +
+                                  '<td>' + item.priority + '</td></tr>';
+                    }
+                    
+                    // 添加缺陷阶段信息
+                    if (item.defectPhase) {
+                        casesHtml += '<tr><th>Defect Phase</th>' +
+                                  '<td>' + item.defectPhase + '</td></tr>';
+                    }
+                    
+                    casesHtml += '</tbody></table>';
+                    
+                    // 添加按钮组
+                    casesHtml += '<div class="case-actions">';
+                    
+                    // 添加查看详情按钮
+                    casesHtml += '<button class="btn btn-info btn-sm view-case-details" data-case-id="' + caseId + '">' +
+                              '<i class="glyphicon glyphicon-search"></i> View Details</button>';
+                    
+                    // 添加关联按钮
+                    var isLinked = linkedCases.indexOf(caseId) !== -1;
+                    casesHtml += '<button class="btn btn-sm link-case-btn ' + (isLinked ? 'btn-success' : 'btn-default') + '" data-case-id="' + caseId + '">' +
+                              '<i class="glyphicon ' + (isLinked ? 'glyphicon-link' : 'glyphicon-paperclip') + '"></i>' + 
+                              '<span>' + (isLinked ? ' Linked' : ' Link This Case') + '</span></button>';
+                    
+                    // 添加应用RCA按钮
+                    casesHtml += '<button class="btn btn-warning btn-sm apply-rca-btn" data-case-id="' + caseId + '">' +
+                              '<i class="glyphicon glyphicon-transfer"></i> Apply Fields</button>';
+                    
+                    casesHtml += '</div>'; // 关闭按钮组
+                    
+                    casesHtml += '</div></div>'; // 关闭卡片
+                });
+                
+                // 如果有高相似度案例，显示警告
+                if (highSimilarityCases > 0) {
+                    $("#similarCaseWarning").show().find('strong').text('Found ' + highSimilarityCases + ' highly similar tickets!');
+                } else {
+                    $("#similarCaseWarning").hide();
+                }
+                
+                $("#similarCasesContent").html(casesHtml);
+                
+                // 绑定查看详情事件
+                $(".view-case-details").click(function() {
+                    var caseId = $(this).data('case-id');
+                    var caseItem = null;
+                    
+                    // 查找对应的案例数据
+                    $.each(response.similarCases, function(i, item) {
+                        if ((item.id && item.id == caseId) || (item.caseNumber && item.caseNumber == caseId)) {
+                            caseItem = item;
+                            return false; // 找到后跳出循环
+                        }
+                    });
+                    
+                    if (caseItem) {
+                        // 构建详情HTML
+                        var detailsHtml = '<div class="modal fade" id="caseDetailsModal" tabindex="-1" role="dialog">' +
+                                      '<div class="modal-dialog" role="document">' +
+                                      '<div class="modal-content">' +
+                                      '<div class="modal-header">' +
+                                      '<h4 class="modal-title">Case #' + caseId + ' Details</h4>' +
+                                      '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                                      '</div>' +
+                                      '<div class="modal-body">';
+                        
+                        // 添加所有属性
+                        detailsHtml += '<table class="table table-bordered">';
+                        for (var prop in caseItem) {
+                            if (caseItem.hasOwnProperty(prop) && prop != 'id' && prop != 'caseNumber' && caseItem[prop]) {
+                                var propName = prop.charAt(0).toUpperCase() + prop.slice(1);
+                                
+                                // 格式化显示属性名称
+                                propName = propName.replace(/([A-Z])/g, ' $1').trim();
+                                
+                                var propValue = caseItem[prop];
+                                
+                                // 特殊处理similarity属性
+                                if (prop === 'similarity' && typeof propValue === 'number') {
+                                    propValue = propValue.toFixed(1) + '%';
+                                }
+                                
+                                detailsHtml += '<tr><th>' + propName + '</th><td>' + propValue + '</td></tr>';
+                            }
+                        }
+                        detailsHtml += '</table>';
+                        
+                        detailsHtml += '</div>' +
+                                    '<div class="modal-footer">' +
+                                    '<button type="button" class="btn btn-default close-case-details" data-dismiss="modal">Close</button>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '</div>';
+                        
+                        // 移除任何已存在的模态窗口
+                        $("#caseDetailsModal").remove();
+                        
+                        // 添加到页面并显示
+                        $('body').append(detailsHtml);
+                        
+                        // 绑定关闭按钮事件
+                        $('#caseDetailsModal .close, #caseDetailsModal .close-case-details').off('click').on('click', function() {
+                            $('#caseDetailsModal').modal('hide');
+                        });
+                        
+                        // 显示模态窗口
+                        $("#caseDetailsModal").modal('show');
+                    }
+                });
+                
+            } else {
+                $("#similarCasesContent").html('<div class="alert alert-warning">No similar cases found</div>');
+                $("#similarCaseWarning").hide();
+            }
+        }
+        
+        // 应用预测到表单
+        function applyPredictions(predictions) {
+            // 应用类别预测
+            if (predictions.Module) {
+                var module = predictions.Module.split(' ')[0];
+                if (module) {
+                    $("#Category").val(module);
+                }
+            }
+            
+            // 应用优先级预测
+            if (predictions.Priority) {
+                var priority = predictions.Priority.split(' ')[0];
+                if (priority) {
+                    $("#SeverityName").val(priority);
+                }
+            }
+            
+            // 应用严重性预测
+            if (predictions.Severity) {
+                var severityMatch = predictions.Severity.match(/(\d+)/);
+                if (severityMatch) {
+                    $("#PriorityName").val("Severity " + severityMatch[0]);
+                }
+            }
+            
+            // 关闭模态窗口
+            $("#aiRecommendationModal").modal('hide');
+            showStatus("Predictions applied to form", false);
+            setTimeout(function() { 
+                $("#aiStatus").fadeOut(); 
+            }, 3000);
+        }
+        
+        // 格式化RCA文本
+        function formatRcaText(text) {
+            if (!text) return '';
+            
+            // 替换换行符为HTML换行
+            var html = text.replace(/\n/g, '<br/>');
+            
+            // 处理标题行
+            html = html.replace(/(\d+\.\s*[A-Za-z\s]+):/g, '<h4>$1</h4>');
+            
+            // 处理列表项
+            html = html.replace(/(\s*-\s*[^\n]+)(<br\/>|$)/g, '<li>$1</li>');
+            html = html.replace(/(<li>.*?<\/li>)/g, '<ul>$1</ul>');
+            html = html.replace(/<\/ul>\s*<ul>/g, '');
+            
+            return html;
+        }
+        
+        // 格式化JSON
+        function formatJson(json) {
+            if (typeof json !== 'string') {
+                json = JSON.stringify(json, null, 2);
+            }
+            return json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                       .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, 
+                function (match) {
+                    var cls = 'number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'key';
+                        } else {
+                            cls = 'string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+        }
+    });
+</script>
+<style type="text/css">
+    .spinning {
+        animation: spin 1s infinite linear;
+        display: inline-block;
+    }
+    
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* JSON格式化样式 */
+    .key { color: #d63384; }
+    .string { color: #067535; }
+    .number { color: #005cc5; }
+    .boolean { color: #005cc5; }
+    .null { color: #6c757d; }
+    
+    /* 表单格式 */
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    /* 标签页样式优化 */
+    #recommendationTabs {
+        margin-bottom: 0;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    #recommendationTabs > li {
+        margin-bottom: -1px;
+    }
+    
+    #recommendationTabs > li > a {
+        font-weight: 500;
+        color: #337ab7;
+        padding: 10px 15px;
+        margin-right: 2px;
+        border: 1px solid #ddd;
+        border-radius: 4px 4px 0 0;
+        background-color: #f8f8f8;
+        line-height: 1.42857143;
+        position: relative;
+        display: block;
+    }
+    
+    #recommendationTabs > li.active > a {
+        font-weight: bold;
+        color: #555;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-bottom-color: transparent;
+        cursor: default;
+        border-top: 3px solid #337ab7;
+    }
+    
+    /* 标签页内容区域 */
+    .tab-content {
+        min-height: 300px;
+        border: 1px solid #ddd;
+        border-top: 0;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 0 0 4px 4px;
+    }
+    
+    .tab-pane {
+        display: none;
+    }
+    
+    .tab-pane.active {
+        display: block;
+    }
+    
+    /* 模态窗口样式调整 */
+    .modal-header {
+        position: relative;
+        padding: 15px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+    
+    .modal-header .modal-title {
+        margin: 0;
+        line-height: 1.42857143;
+        font-weight: bold;
+    }
+    
+    .modal-header .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        font-size: 24px;
+        margin-top: 0;
+        z-index: 1100; /* 确保关闭按钮始终可点击 */
+        opacity: 0.6;
+        cursor: pointer;
+    }
+    
+    .modal-header .close:hover {
+        opacity: 1;
+    }
+    
+    /* 相似案例卡片样式 */
+    .case-card {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+    }
+    
+    .case-card:hover {
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    }
+    
+    .case-card .card-header {
+        background-color: #f5f5f5;
+        padding: 10px 15px;
+        border-bottom: 1px solid #ddd;
+        border-radius: 4px 4px 0 0;
+    }
+    
+    .case-card .card-body {
+        padding: 15px;
+    }
+    
+    .case-card.high-similarity {
+        border-left: 4px solid #f0ad4e;
+        background-color: #fff8ee;
+    }
+    
+    .case-card.high-similarity .card-header {
+        background-color: #fff4e4;
+    }
+    
+    .similarity-badge {
+        background-color: #5bc0de;
+        color: white;
+        padding: 3px 7px;
+        border-radius: 10px;
+        float: right;
+        font-size: 12px;
+    }
+    
+    .similarity-badge.high {
+        background-color: #f0ad4e;
+    }
+    
+    /* 案例详情模态窗口样式 */
+    #caseDetailsModal .modal-header {
+        position: relative;
+    }
+    
+    #caseDetailsModal .modal-title {
+        margin: 0;
+        line-height: 1.42857143;
+    }
+    
+    #caseDetailsModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        margin: 0;
+        z-index: 1100;
+        cursor: pointer;
+    }
+    
+    /* 确保模态窗口可以正确关闭 */
+    .modal-backdrop {
+        z-index: 1040;
+    }
+    
+    .modal {
+        z-index: 1050;
+    }
+    
+    /* 按钮点击效果 */
+    .btn {
+        transition: all 0.2s ease;
+    }
+    
+    .btn:active {
+        transform: translateY(1px);
+    }
+    
+    /* 确保所有模态窗口的滚动条显示正常 */
+    .modal-body {
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+    }
+    
+    /* 案例操作按钮 */
+    .case-actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* 警告和提示信息 */
+    .alert {
+        border-radius: 4px;
+    }
+    
+    .alert-high-similarity {
+        background-color: #fcf8e3;
+        border-color: #faebcc;
+        color: #8a6d3b;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+    }
+</style>
+} 
