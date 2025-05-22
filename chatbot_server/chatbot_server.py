@@ -394,176 +394,45 @@ class PredictionRequest(BaseModel):
     new_case: Optional[dict] = None
 
 class PredictionResponse(BaseModel):
-    similarCases: List[Dict[str, Any]]
     predictions: Dict[str, str]
     rcaSuggestion: str
 
-    class Config:
-        # 允许额外字段，避免验证错误
-        extra = "allow"
-        # 自动将蛇形命名转换为驼峰命名(snake_case -> camelCase)
-        alias_generator = lambda string: ''.join(
-            word.capitalize() if i > 0 else word
-            for i, word in enumerate(string.split('_'))
-        )
+class SearchResponse(BaseModel):
+    similarCases: List[Dict[str, Any]]
 
 # Initialize vector retrieval system
 vector_search = VectorSearch()
 
-@app.post("/predict", response_model=PredictionResponse)
-async def predict_fields(request: PredictionRequest):
-    """Predict fields and return similar cases based on key ticket information"""
+@app.post("/predict")
+async def predict(request: PredictionRequest):
+    """仅预测字段并返回RCA建议"""
     try:
+        # 解析请求体
+        description = request.description
+        new_case = request.new_case
+        historical_cases = request.historical_cases
+        
         # 记录请求信息
-        description_preview = request.description[:100] + "..." if len(request.description) > 100 else request.description
+        description_preview = description[:100] + "..." if len(description) > 100 else description
         logging.info(f"收到prediction请求，描述: {description_preview}")
-        logging.info(f"历史案例数量: {len(request.historical_cases)}")
         
-        if request.new_case:
-            subject = request.new_case.get('Subject', '无标题')
-            logging.info(f"新案例信息: {subject}")
-            
-        # 确保至少有一个历史案例
-        if not request.historical_cases:
-            logging.error("没有提供历史案例")
-            raise HTTPException(status_code=400, detail="At least one historical case is required to build the index")
-        
-        # 检查并清理历史案例数据
-        cleaned_cases = []
-        for case in request.historical_cases:
-            if case is None:
-                continue
-                
-            # 确保所有必要字段都有默认值
-            cleaned_case = {
-                'ID': case.get('ID', 'Unknown'),
-                'CaseNumber': case.get('CaseNumber', case.get('ID', 'Unknown')),
-                'Subject': case.get('Subject', ''),
-                'Summary': case.get('Summary', case.get('Subject', '')),
-                'Description': case.get('Description', ''),
-                'Category': case.get('Category', ''),
-                'CategoryName': case.get('CategoryName', case.get('Category', '')),
-                'Task': case.get('Task', ''),
-                'TaskName': case.get('TaskName', case.get('Task', '')),
-                'Priority': case.get('Priority', ''),
-                'DefectPhase': case.get('DefectPhase', ''),
-                'RCAReport': case.get('RCAReport', '')
-            }
-            
-            # 添加清理后的案例
-            cleaned_cases.append(cleaned_case)
-            
-        # 检查历史案例中是否有RCAReport
-        has_rca = any(bool(case.get('RCAReport')) for case in cleaned_cases)
-        if not has_rca:
-            logging.error("历史案例中没有含有RCAReport的案例")
-            
-        # 记录一些历史案例信息
-        for i, case in enumerate(cleaned_cases[:3]):
-            case_id = case.get('ID', 'Unknown')
-            has_rca = bool(case.get('RCAReport'))
-            rca_length = len(case.get('RCAReport', '')) if case.get('RCAReport') else 0
-            logging.info(f"历史案例 {i+1}: ID={case_id}, 有RCA={has_rca}, RCA长度={rca_length}")
-        
-        # 使用历史案例构建索引(只处理包含RCAReport的案例)
-        try:
-            logging.info("开始构建向量索引")
-            vector_search.build_index(cleaned_cases)
-            logging.info("向量索引构建完成")
-        except ValueError as e:
-            logging.error(f"构建索引失败: {str(e)}")
-            raise HTTPException(status_code=400, detail=str(e))
-        
-        # 构建查询字符串，专注于关键字段
-        query_parts = []
-        
-        # 如果提供了完整的新案例对象，专注于关键字段
-        if request.new_case:
-            # 来自表单的关键字段
-            priority_fields = ["Summary", "Description"]  # 最高优先级
-            important_fields = ["Category", "Task", "Priority", "PREFERENCE", "DefectPhase"]
-            
-            # 首先添加高优先级字段
-            for field in priority_fields:
-                if field in request.new_case and request.new_case[field]:
-                    query_parts.append(f"{field}: {request.new_case[field]}")
-            
-            # 添加其他重要字段
-            for field in important_fields:
-                if field in request.new_case and request.new_case[field]:
-                    query_parts.append(f"{field}: {request.new_case[field]}")
-        
-        # 始终包含description字段(如果尚未添加)
-        if not any(part.startswith("Description:") for part in query_parts):
-            query_parts.append(f"Description: {request.description}")
-        
-        # 组合查询字符串
-        query = " ".join(query_parts)
-        query_preview = query[:100] + "..." if len(query) > 100 else query
-        logging.info(f"生成查询字符串: {query_preview}")
-        
-        # 搜索相似案例
-        logging.info("开始搜索相似案例")
-        similar_cases = vector_search.search(query)
-        logging.info(f"搜索完成，找到 {len(similar_cases)} 个相似案例")
+        # 检查并清理数据
+        if not historical_cases:
+            logging.warning("没有提供历史案例")
         
         # 构建提示
-        logging.info("开始构建GPT提示")
-        prompt = "Based on the following similar historical cases, please analyze the new ticket:\n\n"
-        
-        # 防止列表为空
-        if not similar_cases:
-            logging.warning("没有找到相似案例，将生成基本推荐")
-            prompt += "No similar cases found. Providing basic recommendation.\n\n"
-        else:
-            for i, (case, similarity) in enumerate(similar_cases[:3], 1):
-                if not case:
-                    logging.warning(f"案例 {i} 是None，跳过")
-                    continue
-                    
-                # 添加CaseNumber作为标识符
-                case_id = case.get('CaseNumber') or case.get('ID', 'Unknown')
-                prompt += f"Case {i} (ID: {case_id}, Similarity: {(1-similarity)*100:.1f}%):\n"
-                
-                # 添加关键字段
-                for field in ["Subject", "Description", "Category", "CategoryName", "Task", "TaskName", "Priority", "DefectPhase"]:
-                    if field in case and case[field]:
-                        # 截断描述以提高可读性
-                        field_value = case[field]
-                        if field == "Description" and field_value and len(field_value) > 200:
-                            prompt += f"{field}: {field_value[:200]}...\n"
-                        else:
-                            prompt += f"{field}: {field_value}\n"
-                
-                # 提取RCA报告中的Root Causes部分
-                if case.get('RCAReport'):
-                    rca_text = case['RCAReport']
-                    
-                    # 尝试提取Root Causes部分，如果有的话
-                    root_causes = re.search(r"Root Causes\s*[:\n]+(.*?)(?=(##|\Z|#\s+))", rca_text, re.DOTALL | re.IGNORECASE)
-                    if root_causes:
-                        root_causes_text = root_causes.group(1).strip()
-                        # 尝试提取列表项
-                        root_causes_items = re.findall(r'[-•*]\s*(.*?)(?=\n[-•*]|\n\n|\Z)', root_causes_text, re.DOTALL)
-                        if root_causes_items:
-                            prompt += "Root Causes:\n"
-                            for item in root_causes_items:
-                                prompt += f"- {item.strip()}\n"
-                        else:
-                            prompt += f"Root Causes: {root_causes_text}\n"
-                
-                prompt += "\n"
+        prompt = "Based on the following information, please predict the fields of the new ticket:\n\n"
         
         # 添加新案例信息
         prompt += "New Ticket Information:\n"
-        if request.new_case:
+        if new_case:
             # 添加新案例中的关键字段
             key_fields = ["Summary", "Description", "Category", "Task", "Priority", "DefectPhase"]
             for field in key_fields:
-                if field in request.new_case and request.new_case[field]:
-                    prompt += f"{field}: {request.new_case[field]}\n"
+                if field in new_case and new_case[field]:
+                    prompt += f"{field}: {new_case[field]}\n"
         else:
-            prompt += f"Description: {request.description}\n"
+            prompt += f"Description: {description}\n"
         
         prompt += "\n"
         
@@ -577,7 +446,7 @@ async def predict_fields(request: PredictionRequest):
         logging.info("调用OpenAI生成预测")
         try:
             response = openai.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a professional IT issue analysis expert. Please reply in English to avoid coding issues."},
                     {"role": "user", "content": prompt}
@@ -611,111 +480,30 @@ async def predict_fields(request: PredictionRequest):
                 "Severity": "Unable to predict"
             }
         
-        # 构建RCA建议请求，专注于关键方面
-        rca_prompt = "Based on the following similar cases, please provide a root cause analysis for the new ticket:\n\n"
+        # 构建RCA建议请求
+        rca_prompt = "Based on the following information, please provide a root cause analysis for the new ticket:\n\n"
         
-        # 首先添加新工单信息，给予最高优先级
+        # 添加新工单信息
         rca_prompt += "New Ticket Information:\n"
-        new_case_text = ""
-        if request.new_case:
-            # 突出关键字段：Summary和Description
-            if request.new_case.get("Summary"):
-                new_case_text += f"Summary: {request.new_case['Summary']}\n"
+        if new_case:
+            if new_case.get("Summary"):
+                rca_prompt += f"Summary: {new_case['Summary']}\n"
             
-            if request.new_case.get("Description"):
-                new_case_text += f"Description: {request.new_case['Description']}\n"
+            if new_case.get("Description"):
+                rca_prompt += f"Description: {new_case['Description']}\n"
             
             # 添加其他有用字段
             for field in ["Category", "Task", "Priority", "DefectPhase"]:
-                if field in request.new_case and request.new_case[field]:
-                    new_case_text += f"{field}: {request.new_case[field]}\n"
+                if field in new_case and new_case[field]:
+                    rca_prompt += f"{field}: {new_case[field]}\n"
         else:
-            new_case_text += f"Description: {request.description}\n"
+            rca_prompt += f"Description: {description}\n"
         
-        rca_prompt += new_case_text + "\n"
-        
-        # 使用匹配的历史案例来增强分析
-        rca_prompt += "Similar Historical Cases to the New Ticket:\n\n"
-        
-        if not similar_cases:
-            rca_prompt += "No similar cases found. Providing general analysis.\n\n"
-        else:
-            for i, (case, similarity) in enumerate(similar_cases[:2], 1):
-                if not case:
-                    continue
-                    
-                # 添加案例标识符
-                case_id = case.get('CaseNumber') or case.get('ID', 'Unknown')
-                rca_prompt += f"Case {i} (ID: {case_id}, Similarity: {(1-similarity)*100:.1f}%):\n"
-                
-                # 添加关键字段
-                if case.get('Subject'):
-                    rca_prompt += f"Subject: {case['Subject']}\n"
-                    
-                if case.get('Description'):
-                    # 添加简短描述
-                    desc = case['Description']
-                    desc_summary = desc[:100] + "..." if len(desc) > 100 else desc
-                    rca_prompt += f"Brief Description: {desc_summary}\n"
-                
-                # 提取并包含RCA报告的关键部分
-                if case.get('RCAReport'):
-                    rca_text = case['RCAReport']
-                    
-                    # 定义要提取的所有关键部分
-                    key_sections = {
-                        'Issue Summary': None,
-                        'Impact Analysis': None,
-                        'Root Causes': None,
-                        'Resolution': None,
-                        'Preventive Measures': None,
-                        'Supplementary Information': None,
-                        'Conclusion': None
-                    }
-                    
-                    # 提取各个关键部分
-                    for section in key_sections.keys():
-                        pattern = rf"{section}\s*[:\n]+(.*?)(?=(##|\Z|#\s+))"
-                        match = re.search(pattern, rca_text, re.DOTALL | re.IGNORECASE)
-                        if match:
-                            key_sections[section] = match.group(1).strip()
-                    
-                    # 优先展示Root Causes和Resolution部分
-                    if key_sections['Root Causes']:
-                        rca_prompt += f"Root Causes:\n{key_sections['Root Causes']}\n\n"
-                        
-                    if key_sections['Resolution']:
-                        rca_prompt += f"Resolution:\n{key_sections['Resolution']}\n\n"
-                    
-                    # 展示Conclusion部分
-                    if key_sections['Conclusion']:
-                        rca_prompt += f"Conclusion:\n{key_sections['Conclusion']}\n\n"
-                    
-                    # 如果前面三个主要部分都没有，则展示所有找到的部分
-                    if not (key_sections['Root Causes'] or key_sections['Resolution'] or key_sections['Conclusion']):
-                        sections_found = 0
-                        for section, content in key_sections.items():
-                            if content:
-                                sections_found += 1
-                                clean_section = re.sub(r'^\d+\.\s*', '', section)
-                                rca_prompt += f"{clean_section}:\n{content[:150]}...\n\n"
-                                
-                                # 限制展示的部分数量，避免过长
-                                if sections_found >= 3:
-                                    break
-                    
-                    # 如果没有找到任何部分，使用整个报告的摘要
-                    if not any(key_sections.values()):
-                        summary = rca_text[:300] + "..." if len(rca_text) > 300 else rca_text
-                        rca_prompt += f"RCA Summary:\n{summary}\n\n"
-                
-                rca_prompt += "\n"
-        
-        rca_prompt += "Please provide a comprehensive root cause analysis for the new ticket, including:\n"
+        rca_prompt += "\n"
+        rca_prompt += "Please provide a comprehensive root cause analysis for this ticket, including:\n"
         rca_prompt += "1. Possible root causes\n"
         rca_prompt += "2. Suggested investigation steps\n"
         rca_prompt += "3. Potential solutions\n"
-        rca_prompt += "Please use concise and clear English to answer, to avoid coding issues. Organize your answer according to the above three points and maintain professionalism."
         
         # 调用OpenAI生成RCA建议
         logging.info("调用OpenAI生成RCA建议")
@@ -728,15 +516,111 @@ async def predict_fields(request: PredictionRequest):
                 ],
                 temperature=0.5
             )
-            rcaSuggestionText = rca_response.choices[0].message.content
-            logging.info(f"RCA建议生成成功，长度: {len(rcaSuggestionText)}")
+            rcaSuggestion = rca_response.choices[0].message.content
+            logging.info(f"RCA建议生成成功，长度: {len(rcaSuggestion)}")
         except Exception as e:
             logging.error(f"OpenAI API调用失败: {str(e)}")
-            rcaSuggestionText = "Failed to generate RCA suggestion due to an error."
+            rcaSuggestion = "Failed to generate RCA suggestion due to an error."
         
-        # 为前端准备案例数据，专注于关键字段
+        # 构建预测响应 - 仅包含预测和RCA建议，不含相似案例
+        response_data = {
+            "predictions": predictions,
+            "rcaSuggestion": rcaSuggestion
+        }
+        
+        logging.info("返回预测响应")
+        return response_data
+        
+    except Exception as e:
+        logging.error(f"预测失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+# 单独的相似案例搜索端点
+@app.post("/search_similar_cases")
+async def search_similar_cases(request: PredictionRequest):
+    """仅搜索并返回相似案例"""
+    try:
+        # 解析请求体
+        description = request.description
+        new_case = request.new_case
+        historical_cases = request.historical_cases
+        
+        # 记录请求信息
+        logging.info(f"收到相似案例搜索请求，历史案例数量: {len(historical_cases)}")
+        
+        # 确保至少有一个历史案例
+        if not historical_cases:
+            logging.error("没有提供历史案例")
+            raise HTTPException(status_code=400, detail="At least one historical case is required to build the index")
+        
+        # 检查并清理历史案例数据
+        cleaned_cases = []
+        for case in historical_cases:
+            if case is None:
+                continue
+                
+            # 确保所有必要字段都有默认值
+            cleaned_case = {
+                'ID': case.get('ID', 'Unknown'),
+                'CaseNumber': case.get('CaseNumber', case.get('ID', 'Unknown')),
+                'Subject': case.get('Subject', ''),
+                'Summary': case.get('Summary', case.get('Subject', '')),
+                'Description': case.get('Description', ''),
+                'Category': case.get('Category', ''),
+                'CategoryName': case.get('CategoryName', case.get('Category', '')),
+                'Task': case.get('Task', ''),
+                'TaskName': case.get('TaskName', case.get('Task', '')),
+                'Priority': case.get('Priority', ''),
+                'DefectPhase': case.get('DefectPhase', ''),
+                'RCAReport': case.get('RCAReport', '')
+            }
+            
+            # 添加清理后的案例
+            cleaned_cases.append(cleaned_case)
+        
+        # 使用历史案例构建索引(只处理包含RCAReport的案例)
+        try:
+            logging.info("开始构建向量索引")
+            vector_search.build_index(cleaned_cases)
+            logging.info("向量索引构建完成")
+        except ValueError as e:
+            logging.error(f"构建索引失败: {str(e)}")
+            raise HTTPException(status_code=400, detail=str(e))
+        
+        # 构建查询字符串
+        query_parts = []
+        
+        # 如果提供了完整的新案例对象，专注于关键字段
+        if new_case:
+            # 来自表单的关键字段
+            priority_fields = ["Summary", "Description"]  # 最高优先级
+            important_fields = ["Category", "Task", "Priority", "PREFERENCE", "DefectPhase"]
+            
+            # 首先添加高优先级字段
+            for field in priority_fields:
+                if field in new_case and new_case[field]:
+                    query_parts.append(f"{field}: {new_case[field]}")
+            
+            # 添加其他重要字段
+            for field in important_fields:
+                if field in new_case and new_case[field]:
+                    query_parts.append(f"{field}: {new_case[field]}")
+        
+        # 始终包含description字段(如果尚未添加)
+        if not any(part.startswith("Description:") for part in query_parts):
+            query_parts.append(f"Description: {description}")
+        
+        # 组合查询字符串
+        query = " ".join(query_parts)
+        
+        # 搜索相似案例
+        logging.info("开始搜索相似案例")
+        similar_cases = vector_search.search(query)
+        logging.info(f"搜索完成，找到 {len(similar_cases)} 个相似案例")
+        
+        # 为前端准备案例数据
         frontend_cases = []
-        for case, similarity in similar_cases[:3]:
+        for case, similarity in similar_cases[:5]:  # 限制返回5个
             if not case:
                 continue
                 
@@ -755,39 +639,21 @@ async def predict_fields(request: PredictionRequest):
                 'task': case.get('Task', ''),
                 'taskName': case.get('TaskName', case.get('Task', '')),
                 'priority': case.get('Priority', ''),
+                'severity': case.get('Severity', ''),
+                'PREFERENCE': case.get('PREFERENCE', ''),
                 'defectPhase': case.get('DefectPhase', ''),
                 'similarity': (1-similarity)*100  # 转换为百分比
             }
             frontend_cases.append(frontend_case)
         
-        # 构建最终响应
-        logging.info("构建最终响应")
-        
-        # 用于调试:记录数据结构
-        logging.info(f"相似案例数: {len(frontend_cases)}")
-        logging.info(f"预测字段数: {len(predictions) if predictions else 0}")
-        
-        # 确保响应格式正确,检查frontend_cases是否为预期的对象数组
-        if frontend_cases and isinstance(frontend_cases, list):
-            sample_case = frontend_cases[0] if frontend_cases else None
-            logging.info(f"样例案例类型: {type(sample_case)}")
-            if sample_case:
-                logging.info(f"样例案例键: {sample_case.keys() if hasattr(sample_case, 'keys') else 'No keys method'}")
-        
-        # 采用简单的字典结构返回数据,避免Pydantic模型序列化问题
+        # 构建响应 - 仅包含相似案例
         response_data = {
-            "similarCases": frontend_cases,
-            "predictions": predictions if predictions else {},
-            "rcaSuggestion": rcaSuggestionText
+            "similarCases": frontend_cases
         }
         
-        # 记录整个响应结构
-        logging.info(f"响应类型: {type(response_data)}")
-        logging.info(f"响应结构: {str(response_data)[:500]}...")
-        
-        # 直接返回字典,让FastAPI自动序列化为JSON
+        logging.info("返回相似案例响应")
         return response_data
         
     except Exception as e:
-        logging.error(f"预测失败: {str(e)}", exc_info=True)
+        logging.error(f"相似案例搜索失败: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))

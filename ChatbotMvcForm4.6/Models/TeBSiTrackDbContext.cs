@@ -10,5 +10,6 @@ namespace ChatbotMvcForm4._6.Models
         public DbSet<CategoryMaster> CategoryMasters { get; set; }
         public DbSet<TaskMaster> TaskMasters { get; set; }
         public DbSet<RCAMaster> RCAMasters { get; set; }
+        public DbSet<SeveritySLA> SeveritySLAs { get; set; }
     }
 } 

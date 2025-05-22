@@ -14,25 +14,25 @@
             </div>
             <div class="form-group">
                 <label>CATEGORY *</label>
-                @Html.TextBoxFor(m => m.Category, new { @class = "form-control", required = "required" })
+                @Html.DropDownListFor(m => m.Category, ViewBag.CategoryOptions as IEnumerable<SelectListItem>, new { @class = "form-control", required = "required" })
             </div>
             <div class="form-group">
                 <label>SEVERITY *</label>
-                @Html.TextBoxFor(m => m.PriorityName, new { @class = "form-control", required = "required" })
+                @Html.DropDownListFor(m => m.PriorityName, ViewBag.SeverityOptions as IEnumerable<SelectListItem>, new { @class = "form-control", required = "required" })
                 @Html.HiddenFor(m => m.Priority)
             </div>
             <div class="form-group">
                 <label>PRIORITY *</label>
-                @Html.TextBoxFor(m => m.SeverityName, new { @class = "form-control", required = "required" })
+                @Html.DropDownListFor(m => m.SeverityName, ViewBag.PriorityOptions as IEnumerable<SelectListItem>, new { @class = "form-control", required = "required" })
                 @Html.HiddenFor(m => m.PREFERENCE)
             </div>
             <div class="form-group">
                 <label>TASK *</label>
-                @Html.TextBoxFor(m => m.Task, new { @class = "form-control", required = "required" })
+                @Html.DropDownListFor(m => m.Task, ViewBag.TaskOptions as IEnumerable<SelectListItem>, new { @class = "form-control", required = "required" })
             </div>
             <div class="form-group">
                 <label>DEFECT PHASE *</label>
-                @Html.TextBoxFor(m => m.DefectPhase, new { @class = "form-control", required = "required" })
+                @Html.DropDownListFor(m => m.DefectPhase, ViewBag.DefectPhaseOptions as IEnumerable<SelectListItem>, new { @class = "form-control", required = "required" })
             </div>
         </div>
         <div class="col-md-6">
@@ -65,8 +65,8 @@
     
     <div class="row" style="margin-top:20px">
         <div class="col-md-6">
-            <button type="button" id="getAIRecommendationBtn" class="btn btn-info">
-                <i class="glyphicon glyphicon-flash"></i> Get AI Recommendation
+            <button type="button" id="getSimilarCaseBtn" class="btn btn-info">
+                <i class="glyphicon glyphicon-flash"></i> Get Similar Cases
             </button>
             <span id="aiStatus" style="margin-left:10px; display:none;">
                 <img src="/Content/loading.gif" width="20" height="20" id="loadingIcon" />
@@ -98,6 +98,11 @@
                 
                 <!-- 标签页导航 -->
                 <ul class="nav nav-tabs" id="recommendationTabs" role="tablist">
+                    <li role="presentation" class="active">
+                        <a href="#similar-cases-tab" id="similarCasesTabLink" aria-controls="similar-cases-tab" role="tab" data-toggle="tab">
+                            <i class="glyphicon glyphicon-copy"></i> Similar Cases
+                        </a>
+                    </li>
                     <li role="presentation">
                         <a href="#predictions-tab" id="predictionsTabLink" aria-controls="predictions-tab" role="tab" data-toggle="tab">
                             <i class="glyphicon glyphicon-stats"></i> Predictions
@@ -106,11 +111,6 @@
                     <li role="presentation">
                         <a href="#rca-tab" id="rcaTabLink" aria-controls="rca-tab" role="tab" data-toggle="tab">
                             <i class="glyphicon glyphicon-search"></i> Root Cause Analysis
-                        </a>
-                    </li>
-                    <li role="presentation" class="active">
-                        <a href="#similar-cases-tab" id="similarCasesTabLink" aria-controls="similar-cases-tab" role="tab" data-toggle="tab">
-                            <i class="glyphicon glyphicon-copy"></i> Similar Cases
                         </a>
                     </li>
                     <li role="presentation">
@@ -199,6 +199,7 @@
         var lastResponseData = null;
         var hasHighSimilarityCase = false;
         var linkedCases = [];
+        var hasRequestedData = false; // 标记是否已经请求过数据
         
         // 阻止表单直接提交，添加确认步骤
         $('form').on('submit', function(e) {
@@ -255,6 +256,12 @@
             console.log('切换到标签: ' + tabId);
         });
 
+        // 模态窗口关闭后恢复按钮状态
+        $('#aiRecommendationModal').on('hidden.bs.modal', function () {
+            console.log('模态窗口已关闭');
+            $("#getSimilarCaseBtn").prop("disabled", false);
+        });
+        
         // 模态窗口打开前的事件
         $('#aiRecommendationModal').on('show.bs.modal', function (e) {
             console.log('模态窗口正在打开...');
@@ -265,7 +272,7 @@
             }
             
             // 确保相似案例标签是活动的
-            $('#recommendationTabs li:nth-child(3)').addClass('active').siblings().removeClass('active');
+            $('#recommendationTabs li:nth-child(1)').addClass('active').siblings().removeClass('active');
             $('#similar-cases-tab').addClass('active').siblings().removeClass('active');
         });
         
@@ -274,7 +281,7 @@
             console.log('模态窗口已完全显示');
             
             // 手动激活Similar Cases标签
-            $('#recommendationTabs li:nth-child(3)').addClass('active').siblings().removeClass('active');
+            $('#recommendationTabs li:nth-child(1)').addClass('active').siblings().removeClass('active');
             $('#similar-cases-tab').addClass('active').siblings().removeClass('active');
         });
         
@@ -387,17 +394,23 @@
         });
         
         // AI推荐按钮点击事件
-        $("#getAIRecommendationBtn").on('click', function(e) {
-            console.log('点击了AI推荐按钮');
+        $("#getSimilarCaseBtn").on('click', function(e) {
+            console.log('点击了获取相似案例按钮');
             var description = $("#Description").val();
             if (!description) {
                 alert("Please enter a description first.");
                 return;
             }
             
+            // 如果已经请求过数据，直接打开模态窗口
+            if (hasRequestedData && lastResponseData) {
+                $("#aiRecommendationModal").modal('show');
+                return;
+            }
+            
             // 显示加载状态
-            showStatus("Requesting AI recommendation...", true);
-            $("#getAIRecommendationBtn").prop("disabled", true);
+            showStatus("Requesting similar cases...", true);
+            $("#getSimilarCaseBtn").prop("disabled", true);
             
             // 清空并初始化模态窗口内容
             $("#predictionsContent").html('<div class="text-center"><i class="glyphicon glyphicon-refresh spinning"></i> Loading predictions...</div>');
@@ -427,92 +440,106 @@
             // 添加到调试信息
             $("#debugContent").append('<p>Request data: ' + JSON.stringify(formData) + '</p>');
             
-            // 发送AJAX请求
+            // 存储响应数据，用于重新打开模态窗口时恢复
+            lastResponseData = {};
+            
+            // 获取预测结果
             $.ajax({
-                url: '@Url.Action("GetAIRecommendation", "Home")',
+                url: '@Url.Action("GetPredictions", "Home")',
                 type: 'POST',
                 contentType: "application/json",
                 data: JSON.stringify(formData),
                 success: function(response) {
-                    // 恢复按钮状态
-                    $("#getAIRecommendationBtn").prop("disabled", false);
-                    showStatus("AI recommendation completed", false);
+                    $("#debugContent").append('<p>Predictions response received.</p>');
                     
-                    // 添加到调试信息
-                    $("#debugContent").append('<p>Response received. Processing...</p>');
-                    
-                    // 处理错误响应
                     if (response.error) {
                         $("#debugContent").append('<div class="alert alert-danger">' + 
-                                               '<strong>Error:</strong> ' + response.error + 
-                                               (response.details ? '<br/>Details: ' + response.details : '') + 
-                                               '</div>');
-                        return;
+                            '<strong>Predictions Error:</strong> ' + response.error + 
+                            (response.details ? '<br/>Details: ' + response.details : '') + 
+                            '</div>');
+                        $("#predictionsContent").html('<div class="alert alert-danger">Failed to load predictions</div>');
+                        $("#rcaContent").html('<div class="alert alert-danger">Failed to load RCA suggestion</div>');
+                    } else {
+                        // 存储预测结果，用于后续恢复
+                        lastResponseData.predictions = response.predictions;
+                        lastResponseData.rcaSuggestion = response.rcaSuggestion;
+                        
+                        // 立即更新预测和RCA组件
+                        updatePredictionsAndRcaUI(response.predictions, response.rcaSuggestion);
                     }
                     
-                    try {
-                        // 保存响应数据以便重新打开时恢复
-                        lastResponseData = response;
-                        
-                        // 处理预测结果
-                        processAiResponse(response);
-                    } catch (e) {
-                        $("#debugContent").append('<div class="alert alert-danger">' +
-                                               '<strong>Error processing response:</strong> ' + e.message +
-                                               '</div>');
-                        console.error("Error processing AI response:", e);
-                    }
+                    // 预测请求完成
+                    showStatus("Predictions loaded", false);
                 },
                 error: function(xhr, status, error) {
-                    // 恢复按钮状态
-                    $("#getAIRecommendationBtn").prop("disabled", false);
-                    showStatus("Request failed: " + status, false);
+                    $("#debugContent").append('<div class="alert alert-danger">' +
+                        '<strong>Predictions AJAX Error:</strong> ' + status + ' - ' + error +
+                        '<br/><br/>Response Text: ' + (xhr.responseText || "No response") +
+                        '</div>');
+                    console.error("Predictions request failed:", status, error);
+                    $("#predictionsContent").html('<div class="alert alert-danger">Failed to load predictions: ' + error + '</div>');
+                    $("#rcaContent").html('<div class="alert alert-danger">Failed to load RCA suggestion</div>');
+                }
+            });
+            
+            // 获取相似案例
+            $.ajax({
+                url: '@Url.Action("GetSimilarCases", "Home")',
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    $("#debugContent").append('<p>Similar cases response received.</p>');
                     
-                    // 添加到调试信息
-                    $("#debugContent").html('<div class="alert alert-danger">' +
-                                         '<strong>AJAX Error:</strong> ' + status + ' - ' + error +
-                                         '<br/><br/>Response Text: ' + (xhr.responseText || "No response") +
-                                         '</div>');
-                    console.error("AI recommendation request failed:", status, error);
+                    if (response.error) {
+                        $("#debugContent").append('<div class="alert alert-danger">' + 
+                            '<strong>Similar Cases Error:</strong> ' + response.error + 
+                            (response.details ? '<br/>Details: ' + response.details : '') + 
+                            '</div>');
+                        $("#similarCasesContent").html('<div class="alert alert-danger">Failed to load similar cases</div>');
+                    } else {
+                        // 存储相似案例结果，用于后续恢复
+                        lastResponseData.similarCases = response.similarCases;
+                        
+                        // 立即更新相似案例组件
+                        updateSimilarCasesUI(response.similarCases);
+                        
+                        // 标记已请求过数据
+                        hasRequestedData = true;
+                    }
+                    
+                    // 恢复按钮状态
+                    $("#getSimilarCaseBtn").prop("disabled", false);
+                },
+                error: function(xhr, status, error) {
+                    $("#debugContent").append('<div class="alert alert-danger">' +
+                        '<strong>Similar Cases AJAX Error:</strong> ' + status + ' - ' + error +
+                        '<br/><br/>Response Text: ' + (xhr.responseText || "No response") +
+                        '</div>');
+                    console.error("Similar cases request failed:", status, error);
+                    $("#similarCasesContent").html('<div class="alert alert-danger">Failed to load similar cases: ' + error + '</div>');
+                    
+                    // 恢复按钮状态
+                    $("#getSimilarCaseBtn").prop("disabled", false);
                 }
             });
         });
         
-        // 模态窗口关闭后恢复按钮状态
-        $('#aiRecommendationModal').on('hidden.bs.modal', function () {
-            console.log('模态窗口已关闭');
-            $("#getAIRecommendationBtn").prop("disabled", false);
-        });
-        
-        // 显示状态信息
-        function showStatus(text, isLoading) {
-            $("#statusText").text(text);
-            $("#aiStatus").show();
-            if (isLoading) {
-                $("#loadingIcon").show();
-            } else {
-                $("#loadingIcon").hide();
-            }
-        }
-        
-        // 处理AI响应
-        function processAiResponse(response) {
-            // 添加到调试信息
-            $("#debugContent").html('<pre>' + formatJson(response) + '</pre>');
-            
-            // 处理预测结果
-            if (response.predictions && typeof response.predictions === 'object') {
+        // 更新预测结果和RCA建议UI - 合并为一个函数
+        function updatePredictionsAndRcaUI(predictions, rcaSuggestion) {
+            // 更新预测结果UI
+            if (predictions && typeof predictions === 'object') {
                 var predictionsHtml = '<div class="panel panel-default">' +
                                      '<div class="panel-heading"><h4>Field Predictions</h4></div>' +
                                      '<div class="panel-body">';
                 
                 var hasPredictions = false;
-                for (var key in response.predictions) {
-                    if (response.predictions.hasOwnProperty(key)) {
+                for (var key in predictions) {
+                    if (predictions.hasOwnProperty(key)) {
                         hasPredictions = true;
                         predictionsHtml += '<div class="row" style="margin-bottom: 15px;">' +
                                          '<div class="col-md-3"><strong>' + key + ':</strong></div>' +
-                                         '<div class="col-md-9">' + response.predictions[key] + '</div>' +
+                                         '<div class="col-md-9">' + predictions[key] + '</div>' +
                                          '</div>';
                     }
                 }
@@ -529,30 +556,32 @@
                 
                 // 绑定应用预测按钮事件
                 $("#applyPredictionsBtn").off('click').on('click', function() {
-                    applyPredictions(response.predictions);
+                    applyPredictions(predictions);
                 });
             } else {
                 $("#predictionsContent").html('<div class="alert alert-warning">No predictions available</div>');
             }
             
-            // 处理RCA建议
-            if (response.rcaSuggestion && typeof response.rcaSuggestion === 'string') {
+            // 更新RCA建议UI
+            if (rcaSuggestion && typeof rcaSuggestion === 'string') {
                 var rcaHtml = '<div class="panel panel-default">' +
                              '<div class="panel-heading"><h4>Root Cause Analysis</h4></div>' +
                              '<div class="panel-body">' +
-                             formatRcaText(response.rcaSuggestion) +
+                             formatRcaText(rcaSuggestion) +
                              '</div></div>';
                 $("#rcaContent").html(rcaHtml);
             } else {
                 $("#rcaContent").html('<div class="alert alert-warning">No RCA suggestion available</div>');
             }
-            
-            // 处理相似案例
-            if (response.similarCases && Array.isArray(response.similarCases) && response.similarCases.length > 0) {
+        }
+        
+        // 更新相似案例UI
+        function updateSimilarCasesUI(similarCases) {
+            if (similarCases && Array.isArray(similarCases) && similarCases.length > 0) {
                 var casesHtml = '';
                 var highSimilarityCases = 0;
                 
-                $.each(response.similarCases, function(i, item) {
+                $.each(similarCases, function(i, item) {
                     var caseId = item.id || item.caseNumber || ("Case-" + (i+1));
                     var similarity = item.similarity ? parseFloat(item.similarity) : 0;
                     var similarityText = similarity.toFixed(1) + "%";
@@ -647,7 +676,7 @@
                     var caseItem = null;
                     
                     // 查找对应的案例数据
-                    $.each(response.similarCases, function(i, item) {
+                    $.each(similarCases, function(i, item) {
                         if ((item.id && item.id == caseId) || (item.caseNumber && item.caseNumber == caseId)) {
                             caseItem = item;
                             return false; // 找到后跳出循环
@@ -713,6 +742,21 @@
             } else {
                 $("#similarCasesContent").html('<div class="alert alert-warning">No similar cases found</div>');
                 $("#similarCaseWarning").hide();
+            }
+        }
+        
+        // 处理AI响应 - 用于打开模态窗口时恢复
+        function processAiResponse(response) {
+            // 添加到调试信息
+            $("#debugContent").html('<pre>' + formatJson(response) + '</pre>');
+            
+            // 更新各个组件
+            if (response.predictions || response.rcaSuggestion) {
+                updatePredictionsAndRcaUI(response.predictions, response.rcaSuggestion);
+            }
+            
+            if (response.similarCases) {
+                updateSimilarCasesUI(response.similarCases);
             }
         }
         
@@ -790,6 +834,17 @@
                     }
                     return '<span class="' + cls + '">' + match + '</span>';
                 });
+        }
+        
+        // 显示状态信息
+        function showStatus(text, isLoading) {
+            $("#statusText").text(text);
+            $("#aiStatus").show();
+            if (isLoading) {
+                $("#loadingIcon").show();
+            } else {
+                $("#loadingIcon").hide();
+            }
         }
     });
 </script>

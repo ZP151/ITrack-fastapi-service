@@ -6,4 +6,5 @@ openai
 numpy
 scikit-learn
 sentence-transformers
+faiss-cpu
 torch

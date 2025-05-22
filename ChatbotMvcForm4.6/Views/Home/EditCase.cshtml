@@ -39,11 +39,13 @@
     </div>
     <div>
         <label>SEVERITY *</label>
-        @Html.TextBoxFor(m => m.Priority, new { @class = "form-control", required = "required" })
+        @Html.DropDownListFor(m => m.PriorityName, ViewBag.SeverityOptions as List<SelectListItem>, "-- Select Severity --", new { @class = "form-control", required = "required" })
+        @Html.HiddenFor(m => m.Priority)
     </div>
     <div>
         <label>PRIORITY *</label>
-        @Html.TextBoxFor(m => m.PREFERENCE, new { @class = "form-control", required = "required" })
+        @Html.DropDownListFor(m => m.SeverityName, ViewBag.PriorityOptions as List<SelectListItem>, "-- Select Priority --", new { @class = "form-control", required = "required" })
+        @Html.HiddenFor(m => m.PREFERENCE)
     </div>
     <div>
         <label>DEFECT PHASE *</label>
@@ -527,6 +529,29 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
+        // 下拉框事件处理
+        $(document).ready(function() {
+            // Severity下拉框变化事件
+            $("#PriorityName").change(function() {
+                var selectedText = $(this).find("option:selected").text();
+                var selectedValue = $(this).val();
+                
+                if (selectedValue) {
+                    $("#Priority").val(selectedValue);
+                }
+            });
+            
+            // Priority下拉框变化事件
+            $("#SeverityName").change(function() {
+                var selectedText = $(this).find("option:selected").text();
+                var selectedValue = $(this).val();
+                
+                if (selectedValue) {
+                    $("#PREFERENCE").val(selectedValue);
+                }
+            });
+        });
+        
         let isChatbotFinished = false;
         
         $(document).ready(function() {
