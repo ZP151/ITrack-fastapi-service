@@ -8,6 +8,7 @@ import copy
 import re
 from typing import Union
 import logging,time
+import asyncio
 from dotenv import load_dotenv
 from vector_utils import VectorSearch
 
@@ -19,7 +20,26 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise ValueError("Missing OpenAI API Key. Set OPENAI_API_KEY in .env file or as an environment variable.")
 
-app = FastAPI()
+# FastAPI app with optimized settings for concurrent processing
+app = FastAPI(
+    title="ITrack AI Service",
+    description="AI-powered ticket analysis and recommendation service",
+    version="1.0.0"
+)
+
+# Configure logging to track concurrent requests
+logging.basicConfig(
+    level=logging.INFO, 
+    format="%(asctime)s - %(levelname)s - [%(name)s] - %(message)s"
+)
+logger = logging.getLogger("chatbot_server")
+
+# 添加请求计数器来追踪并发
+concurrent_requests = {
+    "predict": 0,
+    "search": 0,
+    "total": 0
+}
 
 # Load prompt from external file
 def load_prompt():
@@ -199,21 +219,18 @@ def extract_json_from_response(text):
         return json_match.group(1)  # **Extract JSON part**
     return text  # **If no Markdown code block, return original content**
 
-# Set up logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
 @app.post("/refine_rca", response_model=Union[RCAResponse, dict])
 def refine_rca(rca_request: RCARequest) -> Union[RCAResponse, dict]:
     """Processes issue report and calls OpenAI to refine it."""
     session_id = rca_request.session_id
     
-    logging.info(f"Received request for session_id: {session_id}")
+    logger.info(f"Received request for session_id: {session_id}")
 
     start_time = time.time()  # record start time
     
     # **If is_final=True, generate the final RCA report**
     if rca_request.is_final:
-        logging.info(f"Final request received for session_id: {session_id}. Generating RCA report.")
+        logger.info(f"Final request received for session_id: {session_id}. Generating RCA report.")
         
         # Ensure complete request data
         rca_request = ensure_complete_rca_request(rca_request)
@@ -232,7 +249,7 @@ def refine_rca(rca_request: RCARequest) -> Union[RCAResponse, dict]:
         
         # Call OpenAI to generate the final RCA report
         try:
-            logging.info("Calling OpenAI API to generate final RCA report")
+            logger.info("Calling OpenAI API to generate final RCA report")
             openai.api_key = OPENAI_API_KEY
             
             # Construct messages
@@ -283,7 +300,7 @@ def refine_rca(rca_request: RCARequest) -> Union[RCAResponse, dict]:
             if session_id in session_store:
                 del session_store[session_id]
                 
-            logging.info(f"RCA report generated successfully for session {session_id}")
+            logger.info(f"RCA report generated successfully for session {session_id}")
             
             # Returns a response containing a complete report
             return {
@@ -293,7 +310,7 @@ def refine_rca(rca_request: RCARequest) -> Union[RCAResponse, dict]:
             }
             
         except Exception as e:
-            logging.error(f"Error generating RCA report: {str(e)}")
+            logger.error(f"Error generating RCA report: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Error generating RCA report: {str(e)}")
     
     # The processing logic for non-final requests remains unchanged
@@ -309,7 +326,7 @@ def refine_rca(rca_request: RCARequest) -> Union[RCAResponse, dict]:
         }
 
     last_response_time = time.time()
-    logging.info(f"Session store prepared. Time taken: {last_response_time - start_time:.3f}s")
+    logger.info(f"Session store prepared. Time taken: {last_response_time - start_time:.3f}s")
     
 
     # **Optimize session_store size**# Only keep the last 10 messages
@@ -320,11 +337,11 @@ def refine_rca(rca_request: RCARequest) -> Union[RCAResponse, dict]:
     try:
         current_session_data = json.loads(current_session_data)
     except json.JSONDecodeError:
-        logging.warning(f"Failed to decode JSON for session {session_id}, resetting session context.")
+        logger.warning(f"Failed to decode JSON for session {session_id}, resetting session context.")
         session_store[session_id]["context"] = [{"role": "system", "content": PROMPT_TEMPLATE}]
         current_session_data = {}
 
-    logging.info(f"Processing RCA data for session {session_id}")
+    logger.info(f"Processing RCA data for session {session_id}")
     current_session_data = process_rca_data(current_session_data, rca_request.model_dump())
 
 
@@ -348,7 +365,7 @@ def refine_rca(rca_request: RCARequest) -> Union[RCAResponse, dict]:
         {"role": "user", "content": json.dumps(current_session_data, indent=2)}
     )
     
-    logging.info(f"Calling OpenAI API for session {session_id}")
+    logger.info(f"Calling OpenAI API for session {session_id}")
 
     # **Call OpenAI API**
     openai.api_key = OPENAI_API_KEY
@@ -360,11 +377,11 @@ def refine_rca(rca_request: RCARequest) -> Union[RCAResponse, dict]:
             max_tokens=1000
         )
     except Exception as e:
-        logging.error(f"OpenAI API error: {str(e)}")
+        logger.error(f"OpenAI API error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
 
     call_time = time.time()
-    logging.info(f"OpenAI API call completed in {call_time - last_response_time:.3f}s")
+    logger.info(f"OpenAI API call completed in {call_time - last_response_time:.3f}s")
     last_response_time = call_time
 
     # **Process OpenAI response**
@@ -374,7 +391,7 @@ def refine_rca(rca_request: RCARequest) -> Union[RCAResponse, dict]:
     try:
         response_data = json.loads(processed_text.strip())
     except json.JSONDecodeError as e:
-        logging.error(f"Failed to parse JSON response: {str(e)}")
+        logger.error(f"Failed to parse JSON response: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to parse response: {str(e)}")
     
     # **Save OpenAI response to session_store**
@@ -383,7 +400,7 @@ def refine_rca(rca_request: RCARequest) -> Union[RCAResponse, dict]:
     )
 
     # **Record response time**
-    logging.info(f"Total processing time: {time.time() - start_time:.3f}s")
+    logger.info(f"Total processing time: {time.time() - start_time:.3f}s")
     
     # **Return structured data**
     return response_data
@@ -406,6 +423,13 @@ vector_search = VectorSearch()
 @app.post("/predict")
 async def predict(request: PredictionRequest):
     """仅预测字段并返回RCA建议"""
+    # 增加并发计数器
+    concurrent_requests["predict"] += 1
+    concurrent_requests["total"] += 1
+    request_start_time = time.time()
+    
+    logger.info(f"[PREDICT] 开始处理请求 (并发数: predict={concurrent_requests['predict']}, total={concurrent_requests['total']})")
+    
     try:
         # 解析请求体
         description = request.description
@@ -414,11 +438,11 @@ async def predict(request: PredictionRequest):
         
         # 记录请求信息
         description_preview = description[:100] + "..." if len(description) > 100 else description
-        logging.info(f"收到prediction请求，描述: {description_preview}")
+        logger.info(f"[PREDICT] 收到prediction请求，描述: {description_preview}")
         
         # 检查并清理数据
         if not historical_cases:
-            logging.warning("没有提供历史案例")
+            logger.warning("[PREDICT] 没有提供历史案例")
         
         # 构建提示
         prompt = "Based on the following information, please predict the fields of the new ticket:\n\n"
@@ -443,7 +467,7 @@ async def predict(request: PredictionRequest):
         prompt += "3. Severity: (The impact level - 1-Critical, 2-Major, 3-Minor)\n"
         
         # 调用OpenAI进行预测
-        logging.info("调用OpenAI生成预测")
+        logger.info("[PREDICT] 调用OpenAI生成预测")
         try:
             response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
@@ -456,7 +480,7 @@ async def predict(request: PredictionRequest):
             
             # 解析预测结果
             predictions_text = response.choices[0].message.content
-            logging.info(f"收到OpenAI预测响应，长度: {len(predictions_text)}")
+            logger.info(f"[PREDICT] 收到OpenAI预测响应，长度: {len(predictions_text)}")
             predictions = {}
             for line in predictions_text.split('\n'):
                 if ':' in line:
@@ -471,9 +495,9 @@ async def predict(request: PredictionRequest):
                         if clean_key and value.strip():
                             predictions[clean_key] = value.strip()
             
-            logging.info(f"解析出的预测: {predictions}")
+            logger.info(f"[PREDICT] 解析出的预测: {predictions}")
         except Exception as e:
-            logging.error(f"预测生成失败: {str(e)}")
+            logger.error(f"[PREDICT] 预测生成失败: {str(e)}")
             predictions = {
                 "Module": "Unable to predict",
                 "Priority": "Unable to predict",
@@ -506,7 +530,7 @@ async def predict(request: PredictionRequest):
         rca_prompt += "3. Potential solutions\n"
         
         # 调用OpenAI生成RCA建议
-        logging.info("调用OpenAI生成RCA建议")
+        logger.info("[PREDICT] 调用OpenAI生成RCA建议")
         try:
             rca_response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
@@ -517,9 +541,9 @@ async def predict(request: PredictionRequest):
                 temperature=0.5
             )
             rcaSuggestion = rca_response.choices[0].message.content
-            logging.info(f"RCA建议生成成功，长度: {len(rcaSuggestion)}")
+            logger.info(f"[PREDICT] RCA建议生成成功，长度: {len(rcaSuggestion)}")
         except Exception as e:
-            logging.error(f"OpenAI API调用失败: {str(e)}")
+            logger.error(f"[PREDICT] OpenAI API调用失败: {str(e)}")
             rcaSuggestion = "Failed to generate RCA suggestion due to an error."
         
         # 构建预测响应 - 仅包含预测和RCA建议，不含相似案例
@@ -528,17 +552,31 @@ async def predict(request: PredictionRequest):
             "rcaSuggestion": rcaSuggestion
         }
         
-        logging.info("返回预测响应")
+        request_duration = time.time() - request_start_time
+        logger.info(f"[PREDICT] 处理完成，耗时: {request_duration:.3f}s")
         return response_data
         
     except Exception as e:
-        logging.error(f"预测失败: {str(e)}", exc_info=True)
+        request_duration = time.time() - request_start_time
+        logger.error(f"[PREDICT] 预测失败，耗时: {request_duration:.3f}s, 错误: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        # 减少并发计数器
+        concurrent_requests["predict"] -= 1
+        concurrent_requests["total"] -= 1
+        logger.info(f"[PREDICT] 请求结束 (并发数: predict={concurrent_requests['predict']}, total={concurrent_requests['total']})")
 
 # 单独的相似案例搜索端点
 @app.post("/search_similar_cases")
 async def search_similar_cases(request: PredictionRequest):
     """仅搜索并返回相似案例"""
+    # 增加并发计数器
+    concurrent_requests["search"] += 1
+    concurrent_requests["total"] += 1
+    request_start_time = time.time()
+    
+    logger.info(f"[SEARCH] 开始处理请求 (并发数: search={concurrent_requests['search']}, total={concurrent_requests['total']})")
+    
     try:
         # 解析请求体
         description = request.description
@@ -546,11 +584,11 @@ async def search_similar_cases(request: PredictionRequest):
         historical_cases = request.historical_cases
         
         # 记录请求信息
-        logging.info(f"收到相似案例搜索请求，历史案例数量: {len(historical_cases)}")
+        logger.info(f"[SEARCH] 收到相似案例搜索请求，历史案例数量: {len(historical_cases)}")
         
         # 确保至少有一个历史案例
         if not historical_cases:
-            logging.error("没有提供历史案例")
+            logger.error("[SEARCH] 没有提供历史案例")
             raise HTTPException(status_code=400, detail="At least one historical case is required to build the index")
         
         # 检查并清理历史案例数据
@@ -580,11 +618,11 @@ async def search_similar_cases(request: PredictionRequest):
         
         # 使用历史案例构建索引(只处理包含RCAReport的案例)
         try:
-            logging.info("开始构建向量索引")
+            logger.info("[SEARCH] 开始构建向量索引")
             vector_search.build_index(cleaned_cases)
-            logging.info("向量索引构建完成")
+            logger.info("[SEARCH] 向量索引构建完成")
         except ValueError as e:
-            logging.error(f"构建索引失败: {str(e)}")
+            logger.error(f"[SEARCH] 构建索引失败: {str(e)}")
             raise HTTPException(status_code=400, detail=str(e))
         
         # 构建查询字符串
@@ -614,9 +652,9 @@ async def search_similar_cases(request: PredictionRequest):
         query = " ".join(query_parts)
         
         # 搜索相似案例
-        logging.info("开始搜索相似案例")
+        logger.info("[SEARCH] 开始搜索相似案例")
         similar_cases = vector_search.search(query)
-        logging.info(f"搜索完成，找到 {len(similar_cases)} 个相似案例")
+        logger.info(f"[SEARCH] 搜索完成，找到 {len(similar_cases)} 个相似案例")
         
         # 为前端准备案例数据
         frontend_cases = []
@@ -651,9 +689,16 @@ async def search_similar_cases(request: PredictionRequest):
             "similarCases": frontend_cases
         }
         
-        logging.info("返回相似案例响应")
+        request_duration = time.time() - request_start_time
+        logger.info(f"[SEARCH] 处理完成，耗时: {request_duration:.3f}s")
         return response_data
         
     except Exception as e:
-        logging.error(f"相似案例搜索失败: {str(e)}", exc_info=True)
+        request_duration = time.time() - request_start_time
+        logger.error(f"[SEARCH] 相似案例搜索失败，耗时: {request_duration:.3f}s, 错误: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        # 减少并发计数器
+        concurrent_requests["search"] -= 1
+        concurrent_requests["total"] -= 1
+        logger.info(f"[SEARCH] 请求结束 (并发数: search={concurrent_requests['search']}, total={concurrent_requests['total']})")

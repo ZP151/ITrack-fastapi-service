@@ -443,6 +443,14 @@
             // 存储响应数据，用于重新打开模态窗口时恢复
             lastResponseData = {};
             
+            // 记录开始时间以便追踪性能
+            var startTime = new Date().getTime();
+            $("#debugContent").append('<p>Starting parallel requests at: ' + new Date(startTime).toLocaleTimeString() + '</p>');
+            
+            // 追踪完成状态
+            var predictionsCompleted = false;
+            var searchCompleted = false;
+            
             // 获取预测结果
             $.ajax({
                 url: '@Url.Action("GetPredictions", "Home")',
@@ -450,7 +458,11 @@
                 contentType: "application/json",
                 data: JSON.stringify(formData),
                 success: function(response) {
-                    $("#debugContent").append('<p>Predictions response received.</p>');
+                    var endTime = new Date().getTime();
+                    var duration = endTime - startTime;
+                    predictionsCompleted = true;
+                    
+                    $("#debugContent").append('<p>Predictions completed in ' + duration + 'ms</p>');
                     
                     if (response.error) {
                         $("#debugContent").append('<div class="alert alert-danger">' + 
@@ -468,28 +480,45 @@
                         updatePredictionsAndRcaUI(response.predictions, response.rcaSuggestion);
                     }
                     
-                    // 预测请求完成
-                    showStatus("Predictions loaded", false);
+                    // 检查是否所有请求都完成
+                    if (searchCompleted) {
+                        $("#debugContent").append('<p><strong>All requests completed. Total time: ' + (new Date().getTime() - startTime) + 'ms</strong></p>');
+                        showStatus("AI recommendations loaded", false);
+                    } else {
+                        showStatus("Predictions loaded, waiting for search...", true);
+                    }
                 },
                 error: function(xhr, status, error) {
+                    var endTime = new Date().getTime();
+                    var duration = endTime - startTime;
+                    predictionsCompleted = true;
+                    
                     $("#debugContent").append('<div class="alert alert-danger">' +
-                        '<strong>Predictions AJAX Error:</strong> ' + status + ' - ' + error +
+                        '<strong>Predictions AJAX Error (after ' + duration + 'ms):</strong> ' + status + ' - ' + error +
                         '<br/><br/>Response Text: ' + (xhr.responseText || "No response") +
                         '</div>');
                     console.error("Predictions request failed:", status, error);
                     $("#predictionsContent").html('<div class="alert alert-danger">Failed to load predictions: ' + error + '</div>');
                     $("#rcaContent").html('<div class="alert alert-danger">Failed to load RCA suggestion</div>');
+                    
+                    if (searchCompleted) {
+                        showStatus("Failed to load predictions", false);
+                    }
                 }
             });
             
-            // 获取相似案例
+            // 获取相似案例 - 立即发起，不等待预测完成
             $.ajax({
                 url: '@Url.Action("GetSimilarCases", "Home")',
                 type: 'POST',
                 contentType: "application/json",
                 data: JSON.stringify(formData),
                 success: function(response) {
-                    $("#debugContent").append('<p>Similar cases response received.</p>');
+                    var endTime = new Date().getTime();
+                    var duration = endTime - startTime;
+                    searchCompleted = true;
+                    
+                    $("#debugContent").append('<p>Search completed in ' + duration + 'ms</p>');
                     
                     if (response.error) {
                         $("#debugContent").append('<div class="alert alert-danger">' + 
@@ -508,12 +537,24 @@
                         hasRequestedData = true;
                     }
                     
+                    // 检查是否所有请求都完成
+                    if (predictionsCompleted) {
+                        $("#debugContent").append('<p><strong>All requests completed. Total time: ' + (new Date().getTime() - startTime) + 'ms</strong></p>');
+                        showStatus("AI recommendations loaded", false);
+                    } else {
+                        showStatus("Similar cases loaded, waiting for predictions...", true);
+                    }
+                    
                     // 恢复按钮状态
                     $("#getSimilarCaseBtn").prop("disabled", false);
                 },
                 error: function(xhr, status, error) {
+                    var endTime = new Date().getTime();
+                    var duration = endTime - startTime;
+                    searchCompleted = true;
+                    
                     $("#debugContent").append('<div class="alert alert-danger">' +
-                        '<strong>Similar Cases AJAX Error:</strong> ' + status + ' - ' + error +
+                        '<strong>Similar Cases AJAX Error (after ' + duration + 'ms):</strong> ' + status + ' - ' + error +
                         '<br/><br/>Response Text: ' + (xhr.responseText || "No response") +
                         '</div>');
                     console.error("Similar cases request failed:", status, error);
@@ -521,6 +562,10 @@
                     
                     // 恢复按钮状态
                     $("#getSimilarCaseBtn").prop("disabled", false);
+                    
+                    if (predictionsCompleted) {
+                        showStatus("Failed to load similar cases", false);
+                    }
                 }
             });
         });
